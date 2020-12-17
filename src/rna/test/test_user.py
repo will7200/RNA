@@ -5,7 +5,7 @@ from flask import url_for
 from werkzeug import Response
 
 from modules.users.model import User
-from database import db
+from extensions import db
 from test.base import BaseTestCase
 
 

@@ -1,9 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from modules.users.model import User, UserDetailView, UserCreationSchema, UserUpdateSchema, UserFilterOptions, \
+from extensions import db
+from modules.core.users.models import UserDetailView, UserCreationSchema, UserUpdateSchema, UserFilterOptions, \
     UserExists, UserDoesntExist
-from database import db
+from modules.users.model import User
 
 
 class AbstractUserManagement(ABC):
@@ -11,6 +12,11 @@ class AbstractUserManagement(ABC):
 
     @abstractmethod
     def get_user(self, user_id) -> UserDetailView:
+        """
+        Gets a single user given by user_id
+        :param user_id:
+        :returns: User View
+        """
         pass
 
     @abstractmethod

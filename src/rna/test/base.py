@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_testing import TestCase
 
 from modules import get_registered_blueprints
-from database import db
+from extensions import db
 
 
 class TestBaseConfig:

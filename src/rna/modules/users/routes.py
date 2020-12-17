@@ -4,10 +4,10 @@ from flask.views import MethodView
 from flask_login import login_required
 
 from modules import api
+from modules.core.users.models import UserDetailView, UserFilterOptions, UserUpdateSchema, UserCreationSchema
 from modules.models import APIException
 from modules.users.management import DBUserManagement, AbstractUserManagement
-from modules.users.model import UserDetailView, UserFilterOptions, UserUpdateSchema, UserCreationSchema, roles_required, \
-    roles_has_one
+from modules.users.model import roles_has_one
 
 
 class UserManagementAPI(MethodView):
@@ -58,8 +58,8 @@ class UserManagementAPI(MethodView):
 
 
 # manage
-users_interface = DBUserManagement()
-user_api = UserManagementAPI.as_view('users', management=users_interface)
+users_service: AbstractUserManagement = DBUserManagement()
+user_api = UserManagementAPI.as_view('users', management=users_service)
 api.add_url_rule('/users', defaults={'user_id': None},
                  view_func=user_api, methods=['GET', ])
 api.add_url_rule('/users', view_func=user_api, methods=['POST', ])
