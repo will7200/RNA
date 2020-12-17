@@ -1,0 +1,23 @@
+version: '3'
+
+vars:
+  PYTHON_SOURCE: ./src
+
+tasks:
+  update-requirements:
+    cmds:
+      - pip list --format=freeze > "{{.PYTHON_SOURCE}}"/requirements.txt
+    silent: false
+  scan-mypy:
+    cmds:
+      - mypy src/app
+  local-flask:
+    dotenv: ['.env']
+    dir: ./src/app
+    cmds:
+      - python -m flask run
+  local-flask-shell:
+    dotenv: [ '.env' ]
+    dir: ./src/app
+    cmds:
+      - python -m flask shell
