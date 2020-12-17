@@ -12,12 +12,10 @@ tasks:
     cmds:
       - mypy src/app
   local-flask:
-    dotenv: ['.env']
-    dir: ./src/app
+    dotenv: [ '.env' ]
     cmds:
-      - python -m flask run
+      - PYTHONPATH='.;./src' flask run
   local-flask-shell:
     dotenv: [ '.env' ]
-    dir: ./src/app
     cmds:
-      - python -m flask shell
+      - PYTHONPATH='.;./src' python -m flask shell

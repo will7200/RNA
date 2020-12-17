@@ -6,12 +6,12 @@ from flask import Flask, render_template, redirect, request, url_for
 from flask_login import login_required
 from sqlalchemy.exc import IntegrityError
 
-import modules.auth.routes  # noqa
-import modules.users.routes  # noqa
-from extensions import db, login_manager
-from modules import get_registered_blueprints
-from modules.users.model import User, Role
-from modules.users.routes import users_service
+import rna.modules.auth.routes  # noqa
+import rna.modules.users.routes  # noqa
+from rna.extensions import db, login_manager
+from rna.modules import get_registered_blueprints
+from rna.modules.users.model import User, Role
+from rna.modules.users.routes import users_service
 
 
 def create_app(config):
@@ -26,14 +26,15 @@ def create_app(config):
     db.init_app(app)
     with app.app_context():
         db.create_all()
-        try:
-            user = User(username="admin", email="email@example.com")
-            user.set_password("password")
-            user.roles.append(Role(name='admin'))
-            db.session.add(user)
-            db.session.commit()
-        except IntegrityError:
-            pass
+        if app.config['DEBUG']:
+            try:
+                user = User(username="admin", email="email@example.com")
+                user.set_password("password")
+                user.roles.append(Role(name='admin'))
+                db.session.add(user)
+                db.session.commit()
+            except IntegrityError:
+                pass
 
     # pycharm is acting weird here
     # noinspection PyTypeChecker

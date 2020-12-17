@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from modules import register_blueprint
+from rna.modules import register_blueprint
 
 base_app = Blueprint("app", __name__)
 

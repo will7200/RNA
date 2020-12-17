@@ -2,14 +2,14 @@ import datetime
 import functools
 from typing import List
 
-from flask import abort
+from flask import abort, current_app
 from flask_login import current_user
 from sqlalchemy import Integer, Column, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from modules import Base, UpdateMixin
+from rna.modules import Base, UpdateMixin
 
 
 class User(Base, UpdateMixin):
@@ -88,16 +88,18 @@ def roles_has_one(*role_names):
     def decorator(original_route):
         @functools.wraps(original_route)
         def decorated_route(*args, **kwargs):
-            if not current_user.is_authenticated:
-                abort(401)
-            has_roles = [
-                role_name
-                for role_name in role_names
-                if role_name in current_user.role_names
-            ]
+            if not current_app.config["LOGIN_DISABLED"]:
 
-            if len(has_roles) == 0:
-                abort(401)
+                if not current_user.is_authenticated:
+                    abort(401)
+                has_roles = [
+                    role_name
+                    for role_name in role_names
+                    if role_name in current_user.role_names
+                ]
+
+                if len(has_roles) == 0:
+                    abort(401)
 
             return original_route(*args, **kwargs)
 

@@ -3,11 +3,11 @@ from flask import jsonify, request
 from flask.views import MethodView
 from flask_login import login_required
 
-from modules import api
-from modules.core.users.models import UserDetailView, UserFilterOptions, UserUpdateSchema, UserCreationSchema
-from modules.models import APIException
-from modules.users.management import DBUserManagement, AbstractUserManagement
-from modules.users.model import roles_has_one
+from rna.modules import api
+from rna.modules.core.users.models import UserDetailView, UserFilterOptions, UserUpdateSchema, UserCreationSchema
+from rna.modules.models import APIException
+from rna.modules.users.management import DBUserManagement, AbstractUserManagement
+from rna.modules.users.model import roles_has_one
 
 
 class UserManagementAPI(MethodView):

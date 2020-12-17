@@ -1,10 +1,10 @@
 from abc import ABC, abstractmethod
 from typing import List
 
-from extensions import db
-from modules.core.users.models import UserDetailView, UserCreationSchema, UserUpdateSchema, UserFilterOptions, \
+from rna.extensions import db
+from rna.modules.core.users.models import UserDetailView, UserCreationSchema, UserUpdateSchema, UserFilterOptions, \
     UserExists, UserDoesntExist
-from modules.users.model import User
+from rna.modules.users.model import User
 
 
 class AbstractUserManagement(ABC):
