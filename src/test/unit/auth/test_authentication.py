@@ -54,8 +54,9 @@ class TestAuthenticationControllers(object):
 
     def test_login_page_redirect_on_authenticated_user(self, admin_user):
         resp: Response = self.client.post(url_for('app.login'),
-                                          data=dict(username=admin_user.username, password='password'))
-        assert resp.status_code == 302
+                                          data=dict(username=admin_user.username, password='password'),
+                                          follow_redirects=True)
+        assert resp.status_code == 200
         resp: Response = self.client.get(url_for('app.login'))
         assert resp.status_code == 302
 
@@ -65,10 +66,11 @@ class TestAuthenticationControllers(object):
 
     def test_logout_authenticated_user(self, admin_user):
         resp: Response = self.client.post(url_for('app.login'),
-                                          data=dict(username=admin_user.username, password='password'))
-        assert resp.status_code == 302
-        resp: Response = self.client.get(url_for('app.logout'))
-        assert resp.status_code == 302
+                                          data=dict(username=admin_user.username, password='password'),
+                                          follow_redirects=True)
+        assert resp.status_code == 200
+        resp: Response = self.client.get(url_for('app.logout'), follow_redirects=True)
+        assert resp.status_code == 200
 
     def test_logout_anonymous_user(self, admin_user):
         resp: Response = self.client.get(url_for('app.logout'))
