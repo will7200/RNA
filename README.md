@@ -1,5 +1,7 @@
 # RNA (Remote Network Automation)
 
+![Test](https://github.com/will7200/RNA/workflows/Test/badge.svg)
+
 ## Goal
 
 Test application – Simple 3 Tier, Network Automation.
