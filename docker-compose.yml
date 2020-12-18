@@ -1,0 +1,92 @@
+version: '3.6'
+
+services:
+  db:
+    hostname: rna_db
+    container_name: rna_db
+    image: postgres
+    ports:
+      - 5432:5432
+    networks:
+      - rna
+    environment:
+      - POSTGRES_DB=rna
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  rabbitmq:
+    hostname: rabbitmq
+    image: "bitnami/rabbitmq:latest"
+    volumes:
+      - "rabbitmq_data:/bitnami"
+    networks:
+      - rna
+    restart: always
+
+  web:
+    hostname: rna_web
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    ports:
+      - "5057:5057"
+    depends_on:
+      - rabbitmq
+    healthcheck:
+      test: "${DOCKER_HEALTHCHECK_TEST:-curl localhost:5057/app/health}"
+      interval: "60s"
+      timeout: "3s"
+      start_period: "5s"
+      retries: 3
+    environment:
+      - BROKER_HOST=rabbitmq
+      - SQLALCHEMY_TRACK_MODIFICATIONS=False
+      - FLASK_DEBUG=0
+      - TEMPLATES_AUTO_RELOAD=0
+      - FLASK_ENV=production
+      - SQLALCHEMY_DATABASE_URI=postgres://postgres:postgres@rna_db:5432/rna
+      - SECRET_KEY=this_is_random_huh
+      - ADD_DEFAULT_USER=true
+    networks:
+      - rna
+
+  worker:
+    hostname: rna_worker
+    build:
+      context: ./src
+      dockerfile: Celery.Dockerfile
+    networks:
+      - rna
+    depends_on:
+      - rabbitmq
+    environment:
+      - CELERY_BROKER_URL=amqp://user:bitnami@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=db+postgresql+psycopg2://postgres:postgres@rna_db:5432/rna
+    command: celery -A rna.app worker
+
+  celery-flower:
+    image: gregsi/latest-celery-flower-docker:latest
+    environment:
+      - AMQP_USERNAME=user
+      - AMQP_PASSWORD=bitnami
+      - AMQP_ADMIN_USERNAME=user
+      - AMQP_ADMIN_PASSWORD=bitnami
+      - AMQP_HOST=rabbitmq
+      - AMQP_PORT=5672
+      - AMQP_ADMIN_HOST=rabbitmq
+      - AMQP_ADMIN_PORT=15672
+      - FLOWER_BASIC_AUTH=user:test
+      - FLOWER_PORT=5555
+    networks:
+      - rna
+    depends_on:
+      - rabbitmq
+    ports:
+      - "5555:5555"
+
+volumes:
+  rabbitmq_data:
+    driver: local
+
+networks:
+  rna:

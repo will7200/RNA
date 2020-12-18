@@ -8,15 +8,25 @@ from sqlalchemy.exc import IntegrityError
 
 import rna.modules.auth.routes  # noqa
 import rna.modules.users.routes  # noqa
-from rna.extensions import db, login_manager
+from rna.extensions import db, login_manager, celery
 from rna.modules import get_registered_blueprints
 from rna.modules.users.model import User, Role
 from rna.modules.users.routes import users_service
 
 
+class DefaultConfig(object):
+    # Celery
+    CELERY_CONFIG = {
+        "result_backend"          : "cache",  # noqa: E203
+        "cache_backend"           : "memory",  # noqa: E203
+        "broker_transport_options": {'max_retries': 1},
+    }
+
+
 def create_app(config):
     app: Flask = Flask("RNA", template_folder=os.path.join(os.path.dirname(__file__), "templates"))
     app.url_map.strict_slashes = False
+    app.config.from_object(DefaultConfig())
     app.config.update(**os.environ)
     if isinstance(config, object):
         app.config.from_object(config)
@@ -26,7 +36,8 @@ def create_app(config):
     db.init_app(app)
     with app.app_context():
         db.create_all()
-        if app.config['DEBUG']:
+        db.session.commit()
+        if app.config['DEBUG'] or app.config['ADD_DEFAULT_USER']:
             try:
                 user = User(username="admin", email="email@example.com")
                 user.set_password("password")
@@ -40,7 +51,22 @@ def create_app(config):
     # noinspection PyTypeChecker
     login_manager.init_app(app)
     configure_app(app)
+    configure_celery_app(app, celery)
     return app
+
+
+def configure_celery_app(app, celery):
+    """Configures the celery app."""
+    celery.conf.update(app.config.get("CELERY_CONFIG"))
+
+    TaskBase = celery.Task
+
+    class ContextTask(TaskBase):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return TaskBase.__call__(self, *args, **kwargs)
+
+    celery.Task = ContextTask
 
 
 def configure_app(app):
