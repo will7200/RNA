@@ -9,6 +9,11 @@ class UserLoginSchema(BaseModel):
     remember_me: Optional[bool] = False
 
     @validator('password')
-    def passwords_match(cls, v):
-        assert v != '', 'must contain a value'
+    def password_validate(cls, v):
+        assert v != '', 'cannot be empty'
+        return v
+
+    @validator('username')
+    def username_validate(cls, v):
+        assert v != '', 'cannot be empty'
         return v
