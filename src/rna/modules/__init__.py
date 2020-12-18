@@ -1,5 +1,9 @@
 from typing import List, Tuple, Any, Dict
 
+from flask import current_app
+from werkzeug.local import LocalProxy
+
+logger = LocalProxy(lambda: current_app.logger)
 _registered_blueprints = []
 
 
@@ -29,14 +33,9 @@ def get_registered_blueprints() -> List[Tuple[Any, Dict[str, Any]]]:
     return _registered_blueprints
 
 
-from werkzeug.local import LocalProxy
-from flask import current_app
-
-logger = LocalProxy(lambda: current_app.logger)
-
-from .api import api
-from .app import base_app
-from .models import Base, UpdateMixin
+from .api import api  # noqa: E402
+from .app import base_app  # noqa: E402
+from .models import Base, UpdateMixin  # noqa: E402
 
 __all__ = [
     # Classes
@@ -44,6 +43,7 @@ __all__ = [
     'UpdateMixin',
     # rest
     'api',
+    'base_app',
     'get_registered_blueprints',
     'register_blueprint',
     "logger"

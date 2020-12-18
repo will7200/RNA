@@ -106,6 +106,3 @@ def roles_has_one(*role_names):
         return decorated_route
 
     return decorator
-
-
-

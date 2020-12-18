@@ -6,4 +6,3 @@ from rna.modules import Base
 db = SQLAlchemy(model_class=Base)
 
 login_manager = LoginManager()
-

@@ -1,2 +1,2 @@
-from .fixtures.app import *
-from .fixtures.users import *
+from .fixtures.app import *  # noqa
+from .fixtures.users import *  # noqa

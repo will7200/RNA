@@ -1,6 +1,3 @@
-import pytest
-
-
 def test_set_password(admin_user):
     assert admin_user.password_hash != "password", "is plain text"
 

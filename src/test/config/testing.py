@@ -15,8 +15,8 @@ class TestBaseConfig:
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 
     CELERY_CONFIG = {
-        "always_eager"               : True,
-        "eager_propagates_exceptions": True,
-        "result_backend"             : "cache",
-        "cache_backend"              : "memory",
+        "always_eager"               : True,  # noqa: E203
+        "eager_propagates_exceptions": True,  # noqa: E203
+        "result_backend"             : "cache",  # noqa: E203
+        "cache_backend"              : "memory",  # noqa: E203
     }

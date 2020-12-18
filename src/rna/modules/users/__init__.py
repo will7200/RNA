@@ -1,3 +1,3 @@
-from .management import DBUserManagement
-from .routes import user_api, UserManagementAPI
-from .views import *
+from .management import DBUserManagement  # noqa
+from .routes import user_api, UserManagementAPI  # noqa
+from .views import *  # noqa
