@@ -74,11 +74,18 @@ class HostUpdateSchema(HostBaseModel):
 
 # Executor
 class ExecuteDetails(BaseModel):
-    pass
+    command: str
+    hostname: str
+    port: int = 22
+    username: str = 'root'
+    ssh_options: Optional[str]
+    authentication_method: Optional[AuthenticationMethod]
+    password: Optional[str]
+    private_key: Optional[str]
 
 
 class ExecutedDetails(BaseModel):
-    pass
+    result: str
 
 
 # Exceptions

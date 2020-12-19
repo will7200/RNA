@@ -3,7 +3,7 @@ from abc import abstractmethod, ABC
 from rna.modules.core.remote_management.schemas import ExecuteDetails, ExecutedDetails
 
 
-class Executor(ABC):
+class HostExecutor(ABC):
     """Base Class that handles remote execution on remote host"""
 
     @abstractmethod
