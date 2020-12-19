@@ -1,35 +1,20 @@
 import pydantic
 from flask import request, jsonify
-from flask.views import MethodView
 from flask_login import login_required
 
+from rna.modules.api import APIView
 from rna.modules.core.users.models import UserDetailView, UserFilterOptions, UserUpdateSchema, UserCreationSchema
 from rna.modules.core.users.users import AbstractUserManagement
-from rna.modules.models import APIException
 from rna.modules.users.model import roles_has_one
 
 
-class UserManagementAPI(MethodView):
+class UserManagementAPI(APIView):
     """Controller for Exposing User Management"""
 
     decorators = [login_required, roles_has_one("admin", "api_user_management")]
 
     def __init__(self, management: AbstractUserManagement):
         self.management = management
-
-    def dispatch_request(self, *args, **kwargs):
-        meth = getattr(self, request.method.lower(), None)
-
-        # If the request method is HEAD and we don't have a handler for it
-        # retry with GET.
-        if meth is None and request.method == "HEAD":
-            meth = getattr(self, "get", None)
-
-        assert meth is not None, "Unimplemented method %r" % request.method
-        try:
-            return meth(*args, **kwargs)
-        except APIException as e:
-            return jsonify(e.to_dict()), e.status_code
 
     def get(self, user_id):
         if user_id is None:

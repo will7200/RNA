@@ -1,6 +1,6 @@
 from rna.modules import api
-from rna.modules.users import UserManagementAPI
 from rna.modules.users.management import DBUserManagement, AbstractUserManagement
+from rna.modules.users.views import UserManagementAPI
 
 # manage
 users_service: AbstractUserManagement = DBUserManagement()
