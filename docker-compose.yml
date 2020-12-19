@@ -64,7 +64,7 @@ services:
     environment:
       - CELERY_BROKER_URL=amqp://user:bitnami@rabbitmq:5672//
       - CELERY_RESULT_BACKEND=db+postgresql+psycopg2://postgres:postgres@rna_db:5432/rna
-    command: celery -A rna.app worker
+    command: celery -A rna.app worker -Q execute_host_command -c 4
 
   celery-flower:
     image: gregsi/latest-celery-flower-docker:latest

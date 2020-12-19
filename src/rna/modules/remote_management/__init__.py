@@ -1,7 +1,8 @@
 from .host_management import DBHostManagement
-from .routes import hosts_service
+from .routes import hosts_service, host_executor_service
 
 __all__ = [
     'DBHostManagement',
-    'hosts_service'
+    'hosts_service',
+    'host_executor_service'
 ]

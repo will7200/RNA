@@ -11,6 +11,7 @@ import rna.modules.remote_management.routes  # noqa
 import rna.modules.users.routes  # noqa
 from rna.extensions import db, login_manager, celery
 from rna.modules import get_registered_blueprints
+from rna.modules.remote_management.models import Host
 from rna.modules.users.model import User, Role
 from rna.modules.users.routes import users_service
 
@@ -18,9 +19,12 @@ from rna.modules.users.routes import users_service
 class DefaultConfig(object):
     # Celery
     CELERY_CONFIG = {
-        "result_backend"          : "cache",  # noqa: E203
-        "cache_backend"           : "memory",  # noqa: E203
-        "broker_transport_options": {'max_retries': 1},
+        "broker_url"                 : "sqla+sqlite:///celerydb.db",
+        "cache_backend"              : "db+sqlite:///celerydb.db",
+        "always_eager"               : True,
+        "eager_propagates_exceptions": True,
+        "result_backend"             : "db+sqlite:///celerydb.db",
+        # "broker_transport_options"   : {'max_retries': 1},
     }
 
 
@@ -38,7 +42,7 @@ def create_app(config):
     with app.app_context():
         db.create_all()
         db.session.commit()
-        if app.config['DEBUG'] or app.config['ADD_DEFAULT_USER']:
+        if app.config['DEBUG'] or 'ADD_DEFAULT_USER' in app.config and app.config['ADD_DEFAULT_USER']:
             try:
                 user = User(username="admin", email="email@example.com")
                 user.set_password("password")

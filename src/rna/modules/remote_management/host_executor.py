@@ -15,8 +15,7 @@ def execute_host_command(hostname, command):
 
 class CeleryHostExecutor(HostExecutor):
     def execute_command(self, details: ExecuteDetails):
-        task = execute_host_command(details.hostname, details.command)
-        print(task)
+        task = execute_host_command.delay([details.hostname, details.command])
         return task.id
 
     def retrieve_execution(self, identifier):

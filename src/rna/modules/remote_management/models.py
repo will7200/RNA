@@ -13,9 +13,9 @@ class Host(Base, UpdateMixin):
     name = Column(String(128), nullable=False, index=True)
     # Max DNS Entries length can be 253 characters long
     hostname = Column(String(253), nullable=False, index=True)
-    port = Column(Integer, nullable=False)
+    port = Column(Integer, nullable=False, default=22)
     # Unix usernames are maxed out at 32 characters
-    username = Column(String(32), nullable=False)
+    username = Column(String(32), nullable=True)
     ssh_options = Column(Text, nullable=True)
     authentication_method = Column(Enum(AuthenticationMethod), nullable=True)
     password = Column(String(128), nullable=True)
