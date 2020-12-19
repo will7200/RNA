@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <link href="https://unpkg.com/tailwindcss@^2.0/dist/tailwind.min.css" rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
+    <script src="https://kit.fontawesome.com/c65b2bd6a7.js" crossorigin="anonymous"></script>
+    <title>
+        {% if title %}
+            {{ title }}
+        {% else %} Flask App with Tailwind
+        {% endif %}
+    </title>
+</head>
+<body class="bg-gray-400">
+{% if current_user.is_authenticated %}
+    <header class="bg-white shadow">
+        <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+            <h2 class="text-xl font-bold leading-tight text-gray-900">
+                Hi {{ current_user.username }}!
+            </h2>
+        </div>
+    </header>
+{% endif %}
+<div class="h-100 w-full bg-teal-lightest font-sans">
+    {% with messages = get_flashed_messages(category_filter=["error"]) %}
+        {% if messages %}
+            <ul class="flex flex-col items-center justify-center flex-center w-full">
+                {% set count = namespace(value=0) %}
+                {% for message in messages %}
+                    <li id="notification-error-{{ count.value }}" class="w-auto md:w-1/2">
+                        <div class="text-white px-6 py-4 border-0 rounded relative mb-4 bg-red-500">
+                          <span class="text-xl inline-block mr-5 align-middle">
+                            <i class="fas fa-skull-crossbones"></i>
+                          </span>
+                            <span class="inline-block align-middle mr-8">
+                                {{ message }}
+                            </span>
+                            <button class="absolute bg-transparent text-2xl font-semibold leading-none right-0 top-0 mt-4 mr-6 outline-none focus:outline-none"
+                                    onclick="document.getElementById('notification-error-{{ count.value }}').classList.toggle('hidden');">
+                                <span>×</span>
+                            </button>
+                        </div>
+                    </li>
+                    {% set count.value = count.value + 1 %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    {% block content %}
+
+    {% endblock content %}
+</div>
+</body>
+</html>

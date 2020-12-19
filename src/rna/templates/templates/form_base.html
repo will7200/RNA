@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet"/>
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet"/>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"/>
     <script src="https://kit.fontawesome.com/c65b2bd6a7.js" crossorigin="anonymous"></script>
     <title>
@@ -13,8 +13,8 @@
         {% endif %}
     </title>
 </head>
-<body class="bg-gray-400">
-<div class="h-100 w-full bg-teal-lightest font-sans">
+<body class="bg-gray-400 h-screen flex flex-col">
+<div class="h-full w-full bg-teal-lightest font-sans">
     {% with messages = get_flashed_messages(category_filter=["error"]) %}
         {% if messages %}
             <ul class="flex flex-col items-center justify-center flex-center w-full">

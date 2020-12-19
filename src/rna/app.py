@@ -2,7 +2,7 @@ import base64
 import os
 
 from dotenv import load_dotenv
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, redirect, request, url_for
 from flask_login import login_required
 from sqlalchemy.exc import IntegrityError
 
@@ -19,17 +19,18 @@ from rna.modules.users.routes import users_service
 class DefaultConfig(object):
     # Celery
     CELERY_CONFIG = {
-        "broker_url"                 : "sqla+sqlite:///celerydb.db",
-        "cache_backend"              : "db+sqlite:///celerydb.db",
-        "always_eager"               : True,
-        "eager_propagates_exceptions": True,
-        "result_backend"             : "db+sqlite:///celerydb.db",
+        "broker_url"                 : "sqla+sqlite:///celerydb.db",  # noqa
+        "cache_backend"              : "db+sqlite:///celerydb.db",  # noqa
+        "always_eager"               : True,  # noqa
+        "eager_propagates_exceptions": True,  # noqa
+        "result_backend"             : "db+sqlite:///celerydb.db",  # noqa
         # "broker_transport_options"   : {'max_retries': 1},
     }
 
 
 def create_app(config):
-    app: Flask = Flask("RNA", template_folder=os.path.join(os.path.dirname(__file__), "templates"))
+    app: Flask = Flask("RNA", template_folder=os.path.join(os.path.dirname(__file__), "templates"),
+                       static_folder=os.path.join(os.path.dirname(__file__), "static"))
     app.url_map.strict_slashes = False
     app.config.from_object(DefaultConfig())
     app.config.update(**os.environ)
@@ -50,7 +51,14 @@ def create_app(config):
                 db.session.add(user)
                 db.session.commit()
             except IntegrityError:
-                pass
+                db.session.rollback()
+        try:
+            host = Host(name="dlbeast", hostname="dlbeast", username='wf08', password='WillyOP!23',
+                        user_id=1)
+            db.session.add(host)
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
 
     # pycharm is acting weird here
     # noinspection PyTypeChecker
@@ -78,7 +86,7 @@ def configure_app(app):
     @app.route('/')
     @login_required
     def index():
-        return render_template("index.html")
+        return redirect(url_for("app.hosts"))
 
     @login_manager.user_loader
     def load_user(user_id):
