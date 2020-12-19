@@ -27,14 +27,14 @@ class Login(MethodView):
     def get(self):
         if current_user.is_authenticated:
             return redirect(url_for('index'))
-        return render_template("auth/login.html", Title="Sign In")
+        return render_template("auth/login.html", title="Sign In")
 
     def post(self):
         try:
             data = UserLoginSchema(**request.form)
         except pydantic.error_wrappers.ValidationError as e:
             flash(e.errors(), "error")
-            return render_template("auth/login.html", Title="Sign In"), 400
+            return render_template("auth/login.html", title="Sign In"), 400
 
         users_service = self.users_service
         authenticator = self.authenticator
@@ -43,7 +43,7 @@ class Login(MethodView):
         except UserDoesntExist as e:
             logger.info('%s failed to log in', e.username)
             flash(f"User {e.username} does not exist", "error")
-            return render_template("auth/login.html", Title="Sign In"), 401
+            return render_template("auth/login.html", title="Sign In"), 401
 
         if authenticator.authenticate(user, data.password):
             logger.info('%s logged in successfully', user.username)
@@ -55,8 +55,8 @@ class Login(MethodView):
             else:
                 logger.warn("%s tried to login", user.username)
                 flash("account is not active", "error")
-                return render_template("auth/login.html", Title="Sign In"), 401
+                return render_template("auth/login.html", title="Sign In"), 401
         else:
             logger.info('%s failed to log in', user.username)
             flash("Invalid Username/Password Combination", "error")
-            return render_template("auth/login.html", Title="Sign In"), 401
+            return render_template("auth/login.html", title="Sign In"), 401
