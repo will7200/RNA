@@ -15,6 +15,8 @@ class DBHostManagement(HostManagement):
     def update_host(self, user_identity, identifier, details: HostUpdateSchema) -> bool:
         host: Host = Host.query.filter(Host.user_id == user_identity).get(identifier)
         host.update(details)
+        db.session.add(host)
+        db.session.commit()
         return True
 
     def delete_host(self, user_identity, identifier) -> bool:
@@ -22,6 +24,7 @@ class DBHostManagement(HostManagement):
         if host is None:
             raise HostDoesntExist(identifier)
         db.session.delete(host)
+        db.session.commit()
         return True
 
     def create_host(self, user_identity, details: HostCreationSchema) -> Host:
@@ -34,13 +37,14 @@ class DBHostManagement(HostManagement):
                         private_key=details.private_key, encrypt_authentication=details.encrypt_authentication,
                         user_id=current_user.id)
         db.session.add(new_host)
+        db.session.commit()
         return new_host
 
     def get_host(self, user_identity, identifier) -> Host:
         if type(identifier) is int:
-            _found = Host.query.filter(Host.user_id == user_identity).get(identifier)
+            _found = Host.query.filter(Host.user_id == user_identity, Host.id == identifier).one_or_none()
         else:
-            _found = Host.query.filter(Host.user_id == user_identity).filter(Host.name == identifier).one_or_none()
+            _found = Host.query.filter(Host.user_id == user_identity, Host.name == identifier).one_or_none()
         if _found:
             return _found
         raise HostDoesntExist(identifier)

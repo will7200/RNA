@@ -13,6 +13,7 @@ class DBUserManagement(AbstractUserManagement):
     def update_user(self, user_id, details: UserUpdateSchema) -> bool:
         user: User = User.query.get(user_id)
         user.update(details)
+        db.session.add(user)
         return True
 
     def delete_user(self, user_id) -> bool:
@@ -20,6 +21,7 @@ class DBUserManagement(AbstractUserManagement):
         if user is None:
             raise UserDoesntExist(user_id)
         db.session.delete(user)
+        db.session.commit()
         return True
 
     def create_user(self, details: UserCreationSchema) -> User:
@@ -30,6 +32,7 @@ class DBUserManagement(AbstractUserManagement):
                         last_name=details.last_name)
         new_user.set_password(details.password)
         db.session.add(new_user)
+        db.session.commit()
         return new_user
 
     def get_user(self, user_id) -> User:
