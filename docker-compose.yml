@@ -8,7 +8,7 @@ services:
     ports:
       - 5432:5432
     networks:
-      - rna
+      - backend
     environment:
       - POSTGRES_DB=rna
       - POSTGRES_USER=postgres
@@ -20,7 +20,7 @@ services:
     volumes:
       - "rabbitmq_data:/bitnami"
     networks:
-      - rna
+      - backend
     restart: always
 
   web:
@@ -48,7 +48,9 @@ services:
       - SECRET_KEY=this_is_random_huh
       - ADD_DEFAULT_USER=true
     networks:
-      - rna
+      - frontend
+      - backend
+
 
   worker:
     hostname: rna_worker
@@ -56,7 +58,7 @@ services:
       context: ./src
       dockerfile: Celery.Dockerfile
     networks:
-      - rna
+      - backend
     depends_on:
       - rabbitmq
     environment:
@@ -78,7 +80,8 @@ services:
       - FLOWER_BASIC_AUTH=user:test
       - FLOWER_PORT=5555
     networks:
-      - rna
+      - frontend
+      - backend
     depends_on:
       - rabbitmq
     ports:
@@ -89,4 +92,5 @@ volumes:
     driver: local
 
 networks:
-  rna:
+  frontend:
+  backend:
