@@ -7,6 +7,7 @@ from flask_login import login_required
 from sqlalchemy.exc import IntegrityError
 
 import rna.modules.auth.routes  # noqa
+import rna.modules.remote_management.routes  # noqa
 import rna.modules.users.routes  # noqa
 from rna.extensions import db, login_manager, celery
 from rna.modules import get_registered_blueprints
