@@ -17,6 +17,5 @@ class AuthenticationManager(ABC):
             either a username or an email.
         :param str secret: A secret to verify the user is who they say they are
         :returns: A fully authenticated but not yet logged in user
-        :rtype: :class:`User<flaskbb.user.models.User>`
         """
         pass

@@ -1,39 +1,10 @@
-from abc import ABC, abstractmethod
 from typing import List
 
 from rna.extensions import db
-from rna.modules.core.users.models import UserDetailView, UserCreationSchema, UserUpdateSchema, UserFilterOptions, \
+from rna.modules.core.users.models import UserCreationSchema, UserUpdateSchema, UserFilterOptions, \
     UserExists, UserDoesntExist
+from rna.modules.core.users.users import AbstractUserManagement
 from rna.modules.users.model import User
-
-
-class AbstractUserManagement(ABC):
-    """Base Class for User Management"""
-
-    @abstractmethod
-    def get_user(self, user_id) -> UserDetailView:
-        """
-        Gets a single user given by user_id
-        :param user_id:
-        :returns: User View
-        """
-        pass
-
-    @abstractmethod
-    def get_user_list(self, options: UserFilterOptions) -> List[UserDetailView]:
-        pass
-
-    @abstractmethod
-    def create_user(self, details: UserCreationSchema) -> UserDetailView:
-        pass
-
-    @abstractmethod
-    def delete_user(self, user_id):
-        pass
-
-    @abstractmethod
-    def update_user(self, user_id, details: UserUpdateSchema):
-        pass
 
 
 class DBUserManagement(AbstractUserManagement):
