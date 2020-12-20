@@ -1,4 +1,5 @@
 import pytest
+from flask.testing import FlaskClient
 
 from rna.app import create_app
 from rna.extensions import db
@@ -30,7 +31,7 @@ def post_request_context(application):
         yield
 
 
-@pytest.fixture()
+@pytest.fixture(autouse=True)
 def database():
     """database setup."""
     db.create_all()  # Maybe use migration instead?
@@ -38,3 +39,12 @@ def database():
     yield db
 
     db.drop_all()
+
+
+@pytest.fixture()
+def client(application):
+    app = application
+    ctx = application.test_request_context()
+    ctx.push()
+    app.test_client_class = FlaskClient
+    return app.test_client()

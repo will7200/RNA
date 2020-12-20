@@ -7,7 +7,7 @@ from rna.extensions import db
 
 class TestBaseConfig:
     """Base configuration."""
-    LOGIN_DISABLED = True
+    LOGIN_DISABLED = False
     SERVER_NAME = "localhost:5000"
     SECRET_KEY = os.getenv('SECRET_KEY', 'something')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
