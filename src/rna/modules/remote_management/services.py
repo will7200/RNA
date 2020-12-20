@@ -47,8 +47,8 @@ class DBHostManagement(HostManagement):
         self.executor = executor
 
     def update_host(self, user_identity, identifier, details: HostUpdateSchema) -> bool:
-        host: Host = Host.query.filter(Host.user_id == user_identity).get(identifier)
-        host.update(details)
+        host: Host = Host.query.filter(Host.user_id == user_identity).filter((Host.id == identifier)).one_or_none()
+        host.update(details.dict())
         db.session.add(host)
         db.session.commit()
         return True

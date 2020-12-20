@@ -45,6 +45,18 @@ class HostBaseModel(BaseModel):
             # TODO check that the private key is good
         return values
 
+    @validator('port', pre=True, whole=True, check_fields=False, allow_reuse=True)
+    def _port_as_int(cls, v):
+        if v == '':
+            return 22
+        return int(v)
+
+    @validator('authentication_method', pre=True, whole=True, check_fields=False, allow_reuse=True)
+    def _authentication_method_if_blank(cls, v):
+        if v == '':
+            return None
+        return v
+
 
 class HostCreationSchema(HostBaseModel):
     name: str
@@ -57,18 +69,6 @@ class HostCreationSchema(HostBaseModel):
     private_key: Optional[str]
     # Password or private key will be encrypted with the users current password.
     encrypt_authentication: Optional[bool]
-
-    @validator('port', pre=True, whole=True)
-    def _port_as_int(cls, v):
-        if v == '':
-            return 22
-        return int(v)
-
-    @validator('authentication_method', pre=True, whole=True)
-    def _authentication_method_if_blank(cls, v):
-        if v == '':
-            return None
-        return v
 
 
 class HostUpdateSchema(HostBaseModel):

@@ -1,14 +1,18 @@
 {% extends "common/form_base.html" %}
 {% block content %}
     {% from "common/macros/form.html" import render_field, render_checkbox_field, render_submit_field %}
-    <form action="{{ url_for('app.host_add') }}" method="post" class="m-10 sm:mt-0">
+    <form action="{{ url_for('app.host_edit', host_id=host.id) }}" method="post" class="m-10 sm:mt-0">
         <div class="m-8 flex justify-center">
             <div class="shadow overflow-hidden sm:rounded-md">
                 <div class="px-4 py-5 bg-white sm:p-6">
                     <div class="grid grid-cols-3 gap-6">
                         {{ form.hidden_tag() }}
                         <div class="col-span-2">
-                            {{ render_field(form.name) }}
+                            {% if 'name' in form %}
+                                {{ form.name() }}
+                            {% else %}
+                                {{ host.name }}
+                            {% endif %}
                         </div>
                         <div class="col-span-1">
                         </div>

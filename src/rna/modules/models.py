@@ -32,6 +32,11 @@ class UpdateMixin:
 
     def update(self, values):
         for k, v in values.items():
+            if v:
+                setattr(self, k, v)
+
+    def internal_update(self, values):
+        for k, v in values.items():
             setattr(self, k, v)
 
 

@@ -8,7 +8,7 @@
     <script>
         function Load() {
             ReactDOM.render(React.createElement(HostManagement.AddHost, {
-                add_host: "{{ url_for('app.host_form') }}"
+                add_host: "{{ url_for('app.host_add') }}"
             }), document.getElementById("host_management"))
         }
 

@@ -11,7 +11,7 @@ from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.core.remote_management.schemas import HostFilterOptions, HostCreationSchema, \
     HostUpdateSchema, HostExists, HostDoesntExist, ExecuteDetails
-from rna.modules.remote_management.forms import HostAddForm
+from rna.modules.remote_management.forms import HostAddForm, HostEditForm
 from rna.modules.users.model import roles_has_one
 
 
@@ -57,7 +57,8 @@ class HostManagementAPI(APIView):
     def put(self, host_id):
         # update a single host
         data = request.form
-        return jsonify(self.management.update_host(current_user.id, host_id, HostUpdateSchema(**data)))
+        self.management.update_host(current_user.id, host_id, HostUpdateSchema(**data))
+        return ""
 
 
 class HostListView(MethodView):
@@ -93,12 +94,15 @@ class HostActions(MethodView):
         try:
             if action == 'delete':
                 self.management.delete_host(current_user.id, host_id)
+            if action == 'edit':
+                self.management.get_host(current_user.id, host_id)
+                return redirect(url_for('app.host_edit', host_id=host_id))
         except HostDoesntExist:
             flash("Host Doesn't Exist")
         return redirect(url_for('app.hosts'))
 
 
-class HostManagementForm(MethodView):
+class HostAddView(MethodView):
     decorators = [login_required]
 
     def __init__(self, management: HostManagement):
@@ -119,13 +123,41 @@ class HostManagementForm(MethodView):
             data = HostCreationSchema(**request.form)
         except pydantic.error_wrappers.ValidationError as e:
             flash(e.errors(), "error")
-            return self._render_form(form=form)
+            return self._render_form(form=form), 400
         try:
             l = self.management.create_host(current_user.id, data)
             return render_template("remote_management/forms/host_added.html", title='Host Added', host=l), 201
         except HostExists as e:
             flash(e.to_dict(), "error")
-            return self._render_form(form=form)
+            return self._render_form(form=form), 400
+
+
+class HostEditView(MethodView):
+    decorators = [login_required]
+
+    def __init__(self, management: HostManagement):
+        self.management = management
+
+    def _render_form(self, **kwargs):
+        return render_template("remote_management/forms/host_edit.html", title="Edit Host", **kwargs)
+
+    def get(self, host_id):
+        host = self.management.get_host(current_user.id, host_id)
+        form = HostEditForm(request.form, obj=host)
+        return self._render_form(form=form, host=host)
+
+    def post(self, host_id):
+        host = self.management.get_host(current_user.id, host_id)
+        form = HostEditForm(request.form)
+        if not form.validate():
+            return self._render_form(form=form, host=host), 400
+        try:
+            data = HostUpdateSchema(**request.form)
+        except pydantic.error_wrappers.ValidationError as e:
+            flash(e.errors(), "error")
+            return self._render_form(form=form, host=host), 400
+        self.management.update_host(current_user.id, host.id, data)
+        return redirect(url_for('app.host', host_id=host_id))
 
 
 class CommandManagementActions(MethodView):
@@ -145,5 +177,5 @@ class CommandManagementActions(MethodView):
                 command=command.command,
                 **host.to_dict()  # type: ignore
             ))
-            return jsonify(r), 201
+            return redirect(request.referrer)
         raise Exception(f"Unknown Action {action}")
