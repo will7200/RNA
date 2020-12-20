@@ -1,7 +1,6 @@
 # RNA (Remote Network Automation)
 
 ![Test](https://github.com/will7200/RNA/workflows/Test/badge.svg)
-
 [![codecov](https://codecov.io/gh/will7200/RNA/branch/main/graph/badge.svg?token=NE0A9AXBRS)](https://codecov.io/gh/will7200/RNA)
 
 ## Goal
