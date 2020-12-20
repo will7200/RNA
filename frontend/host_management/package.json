@@ -1,0 +1,44 @@
+{
+  "name": "host_management",
+  "version": "1.0.0",
+  "description": "host_management React component",
+  "main": "lib/index.js",
+  "files": [
+    "css",
+    "es",
+    "lib",
+    "umd"
+  ],
+  "scripts": {
+    "build": "nwb build-react-component",
+    "clean": "nwb clean-module && nwb clean-demo",
+    "prepublishOnly": "npm run build",
+    "start": "nwb serve-react-demo",
+    "test": "nwb test-react",
+    "test:coverage": "nwb test-react --coverage",
+    "test:watch": "nwb test-react --server"
+  },
+  "peerDependencies": {
+    "react": "^17.0.1"
+  },
+  "devDependencies": {
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "nodemon": "latest",
+    "nwb": "0.25.x",
+    "react": "*",
+    "react-dom": "^17.0.1",
+    "ts-node-dev": "latest"
+  },
+  "author": "",
+  "homepage": "",
+  "license": "MIT",
+  "repository": "",
+  "keywords": [
+    "react-component"
+  ],
+  "dependencies": {
+    "react-modal": "^3.12.1",
+    "ts-loader": "^8.0.12"
+  }
+}
