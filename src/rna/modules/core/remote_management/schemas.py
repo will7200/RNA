@@ -51,7 +51,7 @@ class HostCreationSchema(HostBaseModel):
     name: str
     hostname: str
     port: int = 22
-    username: str = 'root'
+    username: Optional[str]
     ssh_options: Optional[str]
     authentication_method: Optional[AuthenticationMethod]
     password: Optional[str]
@@ -69,7 +69,7 @@ class HostCreationSchema(HostBaseModel):
     def _authentication_method_if_blank(cls, v):
         if v == '':
             return None
-        return int(v)
+        return v
 
 
 class HostUpdateSchema(HostBaseModel):
@@ -86,6 +86,7 @@ class HostUpdateSchema(HostBaseModel):
 
 # Executor
 class ExecuteDetails(BaseModel):
+    host_command_id: Any
     command: str
     hostname: str
     port: int = 22

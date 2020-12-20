@@ -1,73 +1,90 @@
-{% extends "templates/base.html" %} {% block content %}
+{% extends "common/base.html" %} {% block content %}
     <main class="mx-auto py-6 sm:px-6 lg:px-8 ">
         <section class="text-gray-700 body-font">
-            <div class="py-6 px-4 sm:px-6 lg:px-8">
-                <h3 class="text-xl font-black leading-tight text-gray-900">
-                    Host Information
-                </h3>
-            </div>
             <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg  bg-white divide-y">
-                    <div class="flex flex-wrap p-4">
-                        <div class="w-full flex flex-row">
-                            <div class="h-full flex items-center">
-                                <div class="flex-grow">
-                                    <h2 class="text-gray-900 title-font font-medium">{{ host.name }}</h2>
-                                    <p class="text-gray-500">Hostname: {{ host.hostname }}</p>
-                                </div>
-                            </div>
-                        </div>
+                <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                    <div class="px-4 py-5 sm:px-6">
+                        <h3 class="text-lg leading-6 font-medium text-gray-900">
+                            <span class="font-bold">{{ host.name }}</span> Host Information
+                        </h3>
+                        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                            Host Details used for connecting to host
+                            with {{ host.authentication_method.value or "no authentication" }}
+                            authentication
+                        </p>
+                    </div>
+                    <div class="border-t border-gray-200">
+                        {% from "common/macros/list.html" import dl_item %}
+                        <dl>
+                            {{ dl_item("Hostname", host.hostname, background="bg-gray-50") }}
+                            {{ dl_item("Port", host.port) }}
+                            {{ dl_item("Username", host.username) }}
+                            {{ dl_item("Password", host.password) }}
+                            {{ dl_item("Private Key", host.private_key or "") }}
+                        </dl>
                     </div>
                 </div>
             </div>
         </section>
-        <div class="flex flex-col px-8">
-            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="py-2 align-middle inline-block sm:px-6 lg:px-8">
-                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg" style="min-width: 500px">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                            <tr>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Command
-                                </th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th scope="col"
-                                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Last Status
-                                </th>
-                                <th scope="col" class="relative px-6 py-3">
-                                    <span class="sr-only">Edit</span>
-                                </th>
-                            </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap">
-
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                  Active
-                </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    Admin
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a>
-                                </td>
-                            </tr>
-
-                            <!-- More rows... -->
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+            <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+                <div class="px-4 py-5 sm:px-6">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Command List
+                    </h3>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                        All Commands Associated with this Host
+                    </p>
                 </div>
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Command
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Latest Result
+                        </th>
+                        <th scope="col" class="relative px-6 py-3">
+                            <span class="sr-only">Edit</span>
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                    {% for command in host.commands %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {{ command.command }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if command.status %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                              Active
+                                            </span>
+                                {% else %}
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-red-800">
+                                              Disabled
+                                            </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ command.latest_result }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Run</a> |
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
+                                <a href="#" class="text-indigo-600 hover:text-indigo-900">View All Events</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>

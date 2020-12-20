@@ -1,0 +1,56 @@
+{% extends "common/form_base.html" %}
+{% block content %}
+    {% from "common/macros/form.html" import render_field, render_checkbox_field, render_submit_field %}
+    <form action="{{ url_for('app.host_form') }}" method="post" class="m-10 sm:mt-0">
+        <div class="m-8 flex justify-center">
+            <div class="shadow overflow-hidden sm:rounded-md">
+                <div class="px-4 py-5 bg-white sm:p-6">
+                    <div class="grid grid-cols-3 gap-6">
+                        {{ form.hidden_tag() }}
+                        <div class="col-span-2">
+                            {{ render_field(form.name) }}
+                        </div>
+                        <div class="col-span-1">
+                        </div>
+                        <div class="col-span-2">
+                            {{ render_field(form.hostname) }}
+                        </div>
+                        <div class="col-span-1">
+                            {{ render_field(form.port) }}
+                        </div>
+                        <div class="col-span-2">
+                            {{ render_field(form.username) }}
+                        </div>
+                        <div class="col-span-2">
+                            {{ render_field(form.password) }}
+                        </div>
+                        <div class="col-span-2">
+                            {{ render_field(form.authentication_method) }}
+                        </div>
+                        <div class="col-span-3">
+                            {{ render_field(form.private_key) }}
+                        </div>
+                        <div class="col-span-3 flex flex-col">
+                            <div class="flex mr-auto">
+                                {{ render_checkbox_field(form.encrypt_authentication) }}
+                            </div>
+                            <div class="flex break-words" style="max-width: 400px">
+                                <p class="block text-sm font-small text-gray-700 w-full">
+                                    If this option is chosen. The authentication credentials will be encrypted with your
+                                    password. Every command run using this host will require your
+                                    password to be inputted
+                                </p>
+                            </div>
+                        </div>
+                        <div class="col-span-2">
+                            {{ render_field(form.user_password) }}
+                        </div>
+                    </div>
+                </div>
+                <div class="px-4 py-3 bg-gray-50 text-right sm:px-6">
+                    {{ render_submit_field(form.submit) }}
+                </div>
+            </div>
+        </div>
+    </form>
+{% endblock content %}

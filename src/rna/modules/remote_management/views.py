@@ -7,6 +7,7 @@ from rna.modules.api import APIView
 from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.core.remote_management.schemas import HostDetailSchema, HostFilterOptions, HostCreationSchema, \
     HostUpdateSchema, HostExists, HostDoesntExist
+from rna.modules.remote_management.forms import HostAddForm
 from rna.modules.users.model import roles_has_one
 
 
@@ -61,6 +62,7 @@ class HostManagementView(MethodView):
         self.management = management
 
     def get(self, host_id):
+        host = self.management.get_host(current_user.id, host_id)
         return render_template("remote_management/host.html", title="Host Management",
                                host=self.management.get_host(current_user.id, host_id))
 
@@ -87,20 +89,24 @@ class HostManagementForm(MethodView):
         self.management = management
 
     def _render_form(self, **kwargs):
-        return render_template("remote_management/forms/host_add_form.html", title="Add Host", **kwargs)
+        return render_template("remote_management/forms/host_add.html", title="Add Host", **kwargs)
 
     def get(self):
-        return self._render_form(form={})
+        form = HostAddForm(request.form)
+        return self._render_form(form=form)
 
     def post(self):
+        form = HostAddForm(request.form)
+        if not form.validate():
+            return self._render_form(form=form), 400
         try:
             data = HostCreationSchema(**request.form)
         except pydantic.error_wrappers.ValidationError as e:
             flash(e.errors(), "error")
-            return self._render_form(form=request.form)
+            return self._render_form(form=form)
         try:
             l = self.management.create_host(current_user.id, data)
-            return render_template("remote_management/forms/host_added.html", title='Host Added', host=l)
+            return render_template("remote_management/forms/host_added.html", title='Host Added', host=l), 201
         except HostExists as e:
             flash(e.to_dict(), "error")
-            return self._render_form(form=request.form)
+            return self._render_form(form=form)

@@ -1,21 +1,13 @@
-import subprocess
-
 from celery.result import AsyncResult
 
-from rna.extensions import celery
 from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.schemas import ExecuteDetails
-
-
-@celery.task(bind=True)
-def execute_host_command(hostname, command):
-    return subprocess.Popen("ssh {host} {cmd}".format(host=hostname, cmd=command), shell=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE).communicate(timeout=30)
+from rna.modules.remote_management.tasks import execute_host_command
 
 
 class CeleryHostExecutor(HostExecutor):
     def execute_command(self, details: ExecuteDetails):
-        task = execute_host_command.delay([details.hostname, details.command])
+        task = execute_host_command.delay(details.hostname, details.command, details.host_command_id)
         return task.id
 
     def retrieve_execution(self, identifier):

@@ -1,9 +1,7 @@
 import base64
 import os
 
-from dotenv import load_dotenv
 from flask import Flask, redirect, request, url_for
-from flask_login import login_required
 from sqlalchemy.exc import IntegrityError
 
 import rna.modules.auth.routes  # noqa
@@ -11,17 +9,20 @@ import rna.modules.remote_management.routes  # noqa
 import rna.modules.users.routes  # noqa
 from rna.extensions import db, login_manager, celery
 from rna.modules import get_registered_blueprints
+from rna.modules.remote_management.host_executor import execute_host_command
 from rna.modules.remote_management.models import Host
 from rna.modules.users.model import User, Role
 from rna.modules.users.routes import users_service
 
 
 class DefaultConfig(object):
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///test.db'
     # Celery
     CELERY_CONFIG = {
         "broker_url"                 : "sqla+sqlite:///celerydb.db",  # noqa
         "cache_backend"              : "db+sqlite:///celerydb.db",  # noqa
-        "always_eager"               : True,  # noqa
+        "always_eager"               : False,  # noqa
         "eager_propagates_exceptions": True,  # noqa
         "result_backend"             : "db+sqlite:///celerydb.db",  # noqa
         # "broker_transport_options"   : {'max_retries': 1},
@@ -34,12 +35,13 @@ def create_app(config):
     app.url_map.strict_slashes = False
     app.config.from_object(DefaultConfig())
     app.config.update(**os.environ)
+    db.init_app(app)
+    celery.conf.update(app.config.get("CELERY_CONFIG"))
     if isinstance(config, object):
         app.config.from_object(config)
     for bp in get_registered_blueprints():
         blueprint, kwargs = bp
         app.register_blueprint(blueprint, **kwargs)
-    db.init_app(app)
     with app.app_context():
         db.create_all()
         db.session.commit()
@@ -64,27 +66,27 @@ def create_app(config):
     # noinspection PyTypeChecker
     login_manager.init_app(app)
     configure_app(app)
-    configure_celery_app(app, celery)
     return app
 
 
-def configure_celery_app(app, celery):
-    """Configures the celery app."""
-    celery.conf.update(app.config.get("CELERY_CONFIG"))
-
+def make_celery(app=None):
+    app = app or create_app(None)
+    celery.conf.update(app.config['CELERY_CONFIG'])
     TaskBase = celery.Task
 
     class ContextTask(TaskBase):
+        abstract = True
+
         def __call__(self, *args, **kwargs):
             with app.app_context():
                 return TaskBase.__call__(self, *args, **kwargs)
 
     celery.Task = ContextTask
+    return celery
 
 
 def configure_app(app):
     @app.route('/')
-    @login_required
     def index():
         return redirect(url_for("app.hosts"))
 
@@ -119,9 +121,3 @@ def configure_app(app):
 
         # finally, return None if both methods did not login the user
         return None
-
-
-if __name__ == '__main__':
-    load_dotenv()
-
-    create_app(None).run()

@@ -47,6 +47,8 @@ services:
       - SQLALCHEMY_DATABASE_URI=postgres://postgres:postgres@rna_db:5432/rna
       - SECRET_KEY=this_is_random_huh
       - ADD_DEFAULT_USER=true
+      - CELERY_BROKER_URL=amqp://user:bitnami@rabbitmq:5672//
+      - CELERY_RESULT_BACKEND=db+postgresql+psycopg2://postgres:postgres@rna_db:5432/rna
     networks:
       - frontend
       - backend
@@ -62,9 +64,10 @@ services:
     depends_on:
       - rabbitmq
     environment:
+      - SQLALCHEMY_DATABASE_URI=postgres://postgres:postgres@rna_db:5432/rna
       - CELERY_BROKER_URL=amqp://user:bitnami@rabbitmq:5672//
       - CELERY_RESULT_BACKEND=db+postgresql+psycopg2://postgres:postgres@rna_db:5432/rna
-    command: celery -A rna.app worker -Q execute_host_command -c 4
+    command: celery -A rna.worker.celery worker -Q execute_host_command -c 4
 
   celery-flower:
     image: gregsi/latest-celery-flower-docker:latest

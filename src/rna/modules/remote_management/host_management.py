@@ -3,14 +3,18 @@ from typing import List
 from flask_login import current_user
 
 from rna.extensions import db
+from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.core.remote_management.schemas import HostUpdateSchema, HostCreationSchema, HostFilterOptions, \
-    HostExists, HostDoesntExist
-from rna.modules.remote_management.models import Host
+    HostExists, HostDoesntExist, ExecuteDetails
+from rna.modules.remote_management.models import Host, HostCommandEvent, HostCommand
 
 
 class DBHostManagement(HostManagement):
     """DBHostManagement handles host management at the database level"""
+
+    def __init__(self, executor: HostExecutor):
+        self.executor = executor
 
     def update_host(self, user_identity, identifier, details: HostUpdateSchema) -> bool:
         host: Host = Host.query.filter(Host.user_id == user_identity).get(identifier)
@@ -36,8 +40,14 @@ class DBHostManagement(HostManagement):
                         authentication_method=details.authentication_method, password=details.authentication_method,
                         private_key=details.private_key, encrypt_authentication=details.encrypt_authentication,
                         user_id=current_user.id)
+        # add default "ip route" command
+        new_host.commands.append(HostCommand(command="ip route"))
         db.session.add(new_host)
         db.session.commit()
+
+        self.executor.execute_command(
+            ExecuteDetails(host_command_id=new_host.commands[0].id, command=new_host.commands[0].command,
+                           hostname=new_host.hostname, port=new_host.port))
         return new_host
 
     def get_host(self, user_identity, identifier) -> Host:
