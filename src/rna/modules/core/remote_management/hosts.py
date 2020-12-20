@@ -16,7 +16,6 @@ class HostManagement(ABC):
         :param identifier: for host
         :returns: Host Schema
         """
-        pass
 
     @abstractmethod
     def get_host_list(self, user_identity, options: HostFilterOptions) -> List[HostDetailSchema]:
@@ -29,7 +28,6 @@ class HostManagement(ABC):
         - name
         :returns: List of Host Schema
         """
-        pass
 
     @abstractmethod
     def create_host(self, user_identity, details: HostCreationSchema) -> HostDetailSchema:
@@ -38,7 +36,6 @@ class HostManagement(ABC):
         :param user_identity: where owner owns host
         :param details: details of host to be created
         """
-        pass
 
     @abstractmethod
     def delete_host(self, user_identity, identifier):
@@ -47,7 +44,6 @@ class HostManagement(ABC):
         :param user_identity: where owner owns host
         :param identifier: unique host identity or id
         """
-        pass
 
     @abstractmethod
     def update_host(self, user_identity, identifier, details: HostUpdateSchema):
@@ -57,4 +53,3 @@ class HostManagement(ABC):
         :param identifier: unique host identity or id
         :param details: host update info
         """
-        pass

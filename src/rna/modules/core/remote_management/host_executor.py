@@ -13,7 +13,6 @@ class HostExecutor(ABC):
         :param details:
         :return: unique identifier of job submitted
         """
-        pass
 
     @abstractmethod
     def retrieve_execution(self, identifier) -> ExecutedDetails:
@@ -22,4 +21,3 @@ class HostExecutor(ABC):
         :param identifier:
         :return: ExecutedDetails
         """
-        pass

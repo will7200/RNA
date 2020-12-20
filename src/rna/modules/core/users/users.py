@@ -14,7 +14,6 @@ class AbstractUserManagement(ABC):
         :param user_id:
         :returns: User View
         """
-        pass
 
     @abstractmethod
     def get_user_list(self, options: UserFilterOptions) -> List[UserDetailView]:
@@ -26,7 +25,6 @@ class AbstractUserManagement(ABC):
         - TBD
         :returns: List of User View
         """
-        pass
 
     @abstractmethod
     def create_user(self, details: UserCreationSchema) -> UserDetailView:
@@ -34,7 +32,6 @@ class AbstractUserManagement(ABC):
         Create A New User
         :param details: details of user to be created
         """
-        pass
 
     @abstractmethod
     def delete_user(self, user_id):
@@ -42,7 +39,6 @@ class AbstractUserManagement(ABC):
         Delete a User by Id
         :param user_id: unique user identity or id
         """
-        pass
 
     @abstractmethod
     def update_user(self, user_id, details: UserUpdateSchema):
@@ -51,4 +47,3 @@ class AbstractUserManagement(ABC):
         :param user_id: unique user identity or id
         :param details: user update info
         """
-        pass

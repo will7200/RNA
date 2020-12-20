@@ -18,4 +18,3 @@ class AuthenticationManager(ABC):
         :param str secret: A secret to verify the user is who they say they are
         :returns: A fully authenticated but not yet logged in user
         """
-        pass
