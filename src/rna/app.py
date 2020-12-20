@@ -42,25 +42,6 @@ def create_app(config):
     for bp in get_registered_blueprints():
         blueprint, kwargs = bp
         app.register_blueprint(blueprint, **kwargs)
-    with app.app_context():
-        db.create_all()
-        db.session.commit()
-        if app.config['DEBUG'] or 'ADD_DEFAULT_USER' in app.config and app.config['ADD_DEFAULT_USER']:
-            try:
-                user = User(username="admin", email="email@example.com")
-                user.set_password("password")
-                user.roles.append(Role(name='admin'))
-                db.session.add(user)
-                db.session.commit()
-            except IntegrityError:
-                db.session.rollback()
-        try:
-            host = Host(name="dlbeast", hostname="dlbeast", username='wf08', password='WillyOP!23',
-                        user_id=1)
-            db.session.add(host)
-            db.session.commit()
-        except IntegrityError:
-            db.session.rollback()
 
     # pycharm is acting weird here
     # noinspection PyTypeChecker

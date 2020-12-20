@@ -64,18 +64,9 @@ class HostCommandEvent(Base, UpdateMixin):
     __tablename__ = "host_commands_events"
     id = Column(Integer, primary_key=True)
     result = Column(Text, nullable=False)
+    exit_code = Column(Integer, nullable=False)
     completed_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     host_command_id = Column(Integer, ForeignKey('host_commands.id'), nullable=False)
-
-    __trigger__ = """
-    CREATE TRIGGER create_new_command_event 
-   AFTER INSERT ON host_commands_events
-BEGIN
-	update host_commands
-	set last_completed = new.last_completed_at, lasest_result = new.result
-	where id = new.host_id
-	END;
-    """
 
     def __repr__(self):
         return f'<HostCommandEvent {self.id}>'
