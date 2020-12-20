@@ -1,4 +1,4 @@
-from .host_management import DBHostManagement
+from .services import DBHostManagement
 from .routes import hosts_service, host_executor_service
 
 __all__ = [

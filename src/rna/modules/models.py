@@ -1,6 +1,7 @@
 import abc
 import http
 
+from sqlalchemy import inspect
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 from sqlalchemy.orm.query import Query
 
@@ -17,6 +18,10 @@ class Base(_Base):
     __abstract__ = True
 
     query: Query
+
+    def to_dict(self):
+        return {c.key: getattr(self, c.key)
+                for c in inspect(self).mapper.column_attrs}
 
 
 class UpdateMixin:

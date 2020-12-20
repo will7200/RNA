@@ -2,13 +2,29 @@ import pydantic
 from flask import jsonify, request, render_template, flash, redirect, url_for
 from flask.views import MethodView
 from flask_login import login_required, current_user
+from marshmallow import fields
+from marshmallow_sqlalchemy import ModelSchema
 
 from rna.modules.api import APIView
+from rna.modules.core.remote_management.host_commands import CommandManagement
+from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.hosts import HostManagement
-from rna.modules.core.remote_management.schemas import HostDetailSchema, HostFilterOptions, HostCreationSchema, \
-    HostUpdateSchema, HostExists, HostDoesntExist
+from rna.modules.core.remote_management.schemas import HostFilterOptions, HostCreationSchema, \
+    HostUpdateSchema, HostExists, HostDoesntExist, ExecuteDetails
 from rna.modules.remote_management.forms import HostAddForm
 from rna.modules.users.model import roles_has_one
+
+
+class HostDetailSchema(ModelSchema):
+    class Meta:
+        fields = ("name", "hostname", "username", "port", "ssh_options")
+
+    password_required_to_run = fields.Method("requires_password")
+
+    def requires_password(self, obj):
+        if 'encrypt_authentication' in obj and obj.encrypt_authentication:
+            return True
+        return False
 
 
 class HostManagementAPI(APIView):
@@ -55,7 +71,7 @@ class HostListView(MethodView):
                                hosts=self.management.get_host_list(current_user.id, HostFilterOptions()))
 
 
-class HostManagementView(MethodView):
+class HostView(MethodView):
     decorators = [login_required]
 
     def __init__(self, management: HostManagement):
@@ -64,10 +80,10 @@ class HostManagementView(MethodView):
     def get(self, host_id):
         host = self.management.get_host(current_user.id, host_id)
         return render_template("remote_management/host.html", title="Host Management",
-                               host=self.management.get_host(current_user.id, host_id))
+                               host=host)
 
 
-class HostManagementActions(MethodView):
+class HostActions(MethodView):
     decorators = [login_required]
 
     def __init__(self, management: HostManagement):
@@ -110,3 +126,24 @@ class HostManagementForm(MethodView):
         except HostExists as e:
             flash(e.to_dict(), "error")
             return self._render_form(form=form)
+
+
+class CommandManagementActions(MethodView):
+    decorators = [login_required]
+
+    def __init__(self, management: HostManagement, commands: CommandManagement, executor: HostExecutor):
+        self.management = management
+        self.executor = executor
+        self.commands = commands
+
+    def get(self, host_id, command_id, action):
+        if action == 'RUN':
+            command = self.commands.get_command(current_user.id, command_id)
+            host = self.management.get_host(current_user.id, command.host_id)
+            r = self.executor.execute_command(ExecuteDetails(
+                command_id=command.id,
+                command=command.command,
+                **host.to_dict()  # type: ignore
+            ))
+            return jsonify(r), 201
+        raise Exception(f"Unknown Action {action}")

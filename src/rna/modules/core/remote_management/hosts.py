@@ -1,15 +1,15 @@
 from abc import abstractmethod, ABC
 from typing import List
 
-from rna.modules.core.remote_management.schemas import HostDetailSchema, HostFilterOptions, HostCreationSchema, \
-    HostUpdateSchema
+from rna.modules.core.remote_management.schemas import HostFilterOptions, HostCreationSchema, \
+    HostUpdateSchema, HostSchema
 
 
 class HostManagement(ABC):
     """Base Class for Host Management"""
 
     @abstractmethod
-    def get_host(self, user_identity, identifier) -> HostDetailSchema:
+    def get_host(self, user_identity, identifier) -> HostSchema:
         """
         Gets a single host given by host_id
         :param user_identity: where owner owns host
@@ -18,7 +18,7 @@ class HostManagement(ABC):
         """
 
     @abstractmethod
-    def get_host_list(self, user_identity, options: HostFilterOptions) -> List[HostDetailSchema]:
+    def get_host_list(self, user_identity, options: HostFilterOptions) -> List[HostSchema]:
         """
         Gets a list of hosts given
         :param user_identity: where owner owns host
@@ -30,7 +30,7 @@ class HostManagement(ABC):
         """
 
     @abstractmethod
-    def create_host(self, user_identity, details: HostCreationSchema) -> HostDetailSchema:
+    def create_host(self, user_identity, details: HostCreationSchema) -> HostSchema:
         """
         Create A New Host
         :param user_identity: where owner owns host

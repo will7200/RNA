@@ -18,9 +18,9 @@
                         <dl>
                             {{ dl_item("Hostname", host.hostname, background="bg-gray-50") }}
                             {{ dl_item("Port", host.port) }}
-                            {{ dl_item("Username", host.username) }}
+                            {{ dl_item("Username", host.username, background="bg-gray-50") }}
                             {{ dl_item("Password", host.password) }}
-                            {{ dl_item("Private Key", host.private_key or "") }}
+                            {{ dl_item("Private Key", host.private_key or "", background="bg-gray-50") }}
                         </dl>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                         All Commands Associated with this Host
                     </p>
                 </div>
-                <table class="min-w-full divide-y divide-gray-200">
+                <table class="max-w-full divide-y divide-gray-200 table-fixed w-full">
                     <thead class="bg-gray-50">
                     <tr>
                         <th scope="col"
@@ -73,11 +73,12 @@
                                             </span>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate">
                                 {{ command.latest_result }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Run</a> |
+                                <a href="{{ url_for("app.command_actions", host_id=host.id, command_id=command.id, action="RUN") }}"
+                                   class="text-indigo-600 hover:text-indigo-900">Run</a> |
                                 <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
                                 <a href="#" class="text-indigo-600 hover:text-indigo-900">View All Events</a>
                             </td>

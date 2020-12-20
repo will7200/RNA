@@ -3,6 +3,7 @@ FROM python:3.8
 RUN apt-get update -y && apt-get upgrade
 COPY requirements.txt .
 RUN pip install -r requirements.txt
+RUN apt-get -y install sshpass
 
 RUN adduser celery
 USER celery

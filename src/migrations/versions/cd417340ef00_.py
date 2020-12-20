@@ -121,6 +121,9 @@ CREATE TRIGGER update_host_command_with_event_detail
     for each row
 execute procedure update_command_event();
     """)
+    op.execute("""
+CREATE SEQUENCE IF NOT EXISTS task_id_sequence;
+    """)
 
 
 def downgrade():

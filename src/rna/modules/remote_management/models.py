@@ -45,6 +45,7 @@ class HostCommand(Base, UpdateMixin):
     command = Column(Text, nullable=False, index=True)
     status = Column(Boolean, nullable=False, default=1)
     latest_result = Column(Text, nullable=True)
+    latest_exit_code = Column(Integer, nullable=True)
     last_completed_at = Column(DateTime, nullable=True)
     host_id = Column(Integer, ForeignKey('hosts.id'), nullable=False)
     events: List['HostCommandEvent'] = relationship("HostCommandEvent", backref="host_commands", cascade="all,delete",
@@ -63,6 +64,7 @@ class HostCommandEvent(Base, UpdateMixin):
     """Host Commands Holds Commands for hosts"""
     __tablename__ = "host_commands_events"
     id = Column(Integer, primary_key=True)
+    guid = Column(String(155), nullable=True)
     result = Column(Text, nullable=False)
     exit_code = Column(Integer, nullable=False)
     completed_at = Column(DateTime, nullable=False, default=datetime.utcnow)

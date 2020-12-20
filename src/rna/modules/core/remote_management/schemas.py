@@ -1,24 +1,9 @@
 from enum import Enum
-from typing import Optional, Any
+from typing import Optional
 
-from marshmallow import fields
-from marshmallow_sqlalchemy import ModelSchema
 from pydantic import BaseModel, root_validator, validator
 
-# Host Management
 from rna.modules.models import ResourceExists, ResourceNotFound
-
-
-class HostDetailSchema(ModelSchema):
-    class Meta:
-        fields = ("name", "hostname", "username", "port", "ssh_options")
-
-    password_required_to_run = fields.Method("requires_password")
-
-    def requires_password(self, obj):
-        if 'encrypt_authentication' in obj and obj.encrypt_authentication:
-            return True
-        return False
 
 
 class HostFilterOptions(BaseModel):
@@ -29,6 +14,20 @@ class HostFilterOptions(BaseModel):
 class AuthenticationMethod(str, Enum):
     password = 'password'
     key_pair = 'key_pair'
+
+
+class HostSchema(BaseModel):
+    id: int
+    name: str
+    hostname: str
+    port: int = 22
+    username: Optional[str]
+    ssh_options: Optional[str]
+    authentication_method: Optional[AuthenticationMethod]
+    password: Optional[str]
+    private_key: Optional[str]
+    # Password or private key will be encrypted with the users current password.
+    encrypt_authentication: Optional[bool]
 
 
 class HostBaseModel(BaseModel):
@@ -84,21 +83,29 @@ class HostUpdateSchema(HostBaseModel):
     encrypt_authentication: Optional[bool]
 
 
+class CommandDetailSchema(BaseModel):
+    id = int
+    command = str
+    host_id = int
+
+
+class CommandCreationSchema(BaseModel):
+    pass
+
+
+class CommandUpdateSchema(BaseModel):
+    pass
+
+
 # Executor
-class ExecuteDetails(BaseModel):
-    host_command_id: Any
+class ExecuteDetails(HostSchema):
+    command_id: int
     command: str
-    hostname: str
-    port: int = 22
-    username: str = 'root'
-    ssh_options: Optional[str]
-    authentication_method: Optional[AuthenticationMethod]
-    password: Optional[str]
-    private_key: Optional[str]
 
 
 class ExecutedDetails(BaseModel):
     result: str
+    exit_code: int
 
 
 # Exceptions
