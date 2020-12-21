@@ -62,7 +62,12 @@ This one is a bit harder but in general it should follow
 + Commit 2: Update source code uses of definitions
 + Commit 3: Drop unused model definitions and create new migrations
 
+Database Migration are created using flask migrate which uses Alembic under the hood.
+
 ### Local Development
+
+Task is used as an alternative to use make. Read more about it [here](https://taskfile.dev/#/).
+Look at [Taskfile](Taskfile.yml) for some
 
 A docker-compose file is provided to get a running version on a local machine.
 
