@@ -9,8 +9,8 @@ from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.core.remote_management.schemas import ExecuteDetails, HostUpdateSchema, HostDoesntExist, \
     HostCreationSchema, HostExists, HostFilterOptions, CommandUpdateSchema, CommandCreationSchema, CommandDetailSchema, \
-    CommandDoesntExist
-from rna.modules.remote_management.models import Host, HostCommand
+    CommandDoesntExist, CommandHistorySchema
+from rna.modules.remote_management.models import Host, HostCommand, HostCommandEvent
 from rna.modules.remote_management.tasks import execute_host_command
 
 
@@ -100,6 +100,12 @@ class DBHostManagement(HostManagement):
 
 
 class DBHostCommandManagement(CommandManagement):
+    def get_command_history(self, user_identity, identifier) -> List[CommandHistorySchema]:
+        return HostCommandEvent.query.join(HostCommand).join(Host).filter(
+            Host.user_id == user_identity,
+            HostCommand.id == identifier
+        ).order_by(HostCommandEvent.completed_at.desc()).all()
+
     def get_command(self, user_identity, identifier) -> CommandDetailSchema:
         _found = HostCommand.query.join(Host).filter(Host.user_id == user_identity,
                                                      HostCommand.id == identifier).one_or_none()

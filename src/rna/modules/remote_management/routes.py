@@ -5,7 +5,7 @@ from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.remote_management import DBHostManagement
 from rna.modules.remote_management.services import CeleryHostExecutor, DBHostCommandManagement
 from rna.modules.remote_management.views import HostManagementAPI, HostListView, HostView, HostAddView, \
-    HostActions, CommandManagementActions, HostEditView, CommandAddView, CommandEditView
+    HostActions, CommandManagementActions, HostEditView, CommandAddView, CommandEditView, CommandEventView
 
 host_executor_service: HostExecutor = CeleryHostExecutor()
 hosts_service: HostManagement = DBHostManagement(host_executor_service)
@@ -45,4 +45,9 @@ command_add_form = CommandAddView.as_view('command_add', management=commands_ser
 base_app.add_url_rule('/form/host/<int:host_id>/command/add', view_func=command_add_form, methods=['GET', 'POST'])
 
 command_edit_form = CommandEditView.as_view('command_edit', management=commands_service, host_management=hosts_service)
-base_app.add_url_rule('/form/host/<int:host_id>/command/<int:command_id>/edit', view_func=command_edit_form, methods=['GET', 'POST'])
+base_app.add_url_rule('/form/host/<int:host_id>/command/<int:command_id>/edit', view_func=command_edit_form,
+                      methods=['GET', 'POST'])
+
+command_event_view = CommandEventView.as_view('command_events', management=commands_service, host_management=hosts_service)
+base_app.add_url_rule('/host/<int:host_id>/command/<int:command_id>/events', view_func=command_event_view,
+                      methods=['GET', ])

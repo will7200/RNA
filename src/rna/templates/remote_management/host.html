@@ -7,9 +7,9 @@
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             <span class="font-bold">{{ host.name }}</span> Host Information
                             <span class="float-right px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ url_for('app.host_actions', host_id=host.id, action='edit') }}"
+                                <a href="{{ url_for('app.host_actions', host_id=host.id, action='EDIT') }}"
                                    class="text-indigo-600 hover:text-indigo-900">Edit</a> |
-                                <a href="{{ url_for('app.host_actions', host_id=host.id, action='delete') }}"
+                                <a href="{{ url_for('app.host_actions', host_id=host.id, action='DELETE') }}"
                                    class="text-indigo-600 hover:text-indigo-900">Delete</a>
                             </span>
                         </h3>
@@ -46,18 +46,18 @@
                     <thead class="bg-gray-50">
                     <tr>
                         <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                             Command
                         </th>
                         <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/12">
                             Status
                         </th>
                         <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-4/12">
                             Latest Result
                         </th>
-                        <th scope="col" class="relative px-6 py-3">
+                        <th scope="col" class="relative px-6 py-3 w-2/12">
                             <span class="sr-only">Edit</span>
                         </th>
                     </tr>
@@ -79,7 +79,7 @@
                                             </span>
                                 {% endif %}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate">
+                            <td class="px-6 py-4 text-sm text-gray-500">
                                 {{ command.latest_result }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -90,7 +90,8 @@
                                 <a href="{{ url_for("app.command_actions", host_id=host.id, command_id=command.id, action="DELETE") }}"
                                    onclick="return confirm_delete()"
                                    class="text-indigo-600 hover:text-indigo-900">Delete</a> |
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">View All Events</a>
+                                <a href="{{ url_for("app.command_events", host_id=host.id, command_id=command.id) }}"
+                                   class="text-indigo-600 hover:text-indigo-900">View All Events</a>
                             </td>
                         </tr>
                     {% endfor %}

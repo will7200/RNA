@@ -84,9 +84,9 @@ class HostActions(MethodView):
 
     def get(self, host_id, action):
         try:
-            if action == 'delete':
+            if action == 'DELETE':
                 self.management.delete_host(current_user.id, host_id)
-            if action == 'edit':
+            if action == 'EDIT':
                 self.management.get_host(current_user.id, host_id)
                 return redirect(url_for('app.host_edit', host_id=host_id))
         except HostDoesntExist:
@@ -161,8 +161,12 @@ class CommandManagementActions(MethodView):
         self.commands = commands
 
     def get(self, host_id, command_id, action):
+        if action == 'DELETE':
+            command = self.commands.delete_command(current_user.id, command_id)
+            return redirect(request.referrer)
+
+        command = self.commands.get_command(current_user.id, command_id)
         if action == 'RUN':
-            command = self.commands.get_command(current_user.id, command_id)
             host = self.management.get_host(current_user.id, command.host_id)
             r = self.executor.execute_command(ExecuteDetails(
                 command_id=command.id,
@@ -170,9 +174,9 @@ class CommandManagementActions(MethodView):
                 **host.to_dict()  # type: ignore
             ))
             return redirect(request.referrer)
-        if action == 'DELETE':
-            command = self.commands.delete_command(current_user.id, command_id)
-            return redirect(request.referrer)
+        if action == 'EDIT':
+            self.management.get_host(current_user.id, host_id)
+            return redirect(url_for('app.command_edit', host_id=host_id, command_id=command.id))
         raise Exception(f"Unknown Action {action}")
 
 
@@ -233,3 +237,17 @@ class CommandEditView(MethodView):
             return self._render_form(form=form, command=command, host=host), 400
         self.management.update_command(current_user.id, command.id, data)
         return redirect(url_for('app.host', host_id=host_id))
+
+
+class CommandEventView(MethodView):
+    decorators = [login_required]
+
+    def __init__(self, management: CommandManagement, host_management: HostManagement):
+        self.management = management
+        self.host_management = host_management
+
+    def get(self, host_id, command_id):
+        host = self.host_management.get_host(current_user.id, host_id)
+        command = self.management.get_command(current_user.id, command_id)
+        return render_template("remote_management/command_events.html", title="Command Event History", command=command,
+                               host=host, history=self.management.get_command_history(current_user.id, command_id))

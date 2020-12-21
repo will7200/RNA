@@ -36,11 +36,19 @@
             <div class="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
                 <div class="hidden sm:block sm:ml-6">
                     <div class="flex space-x-4">
-                        <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
-                        <a href="{{ url_for('app.hosts') }}"
-                           class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Hosts</a>
-                        <a href="#"
-                           class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Command Events</a>
+                        {% if 'events' in request.endpoint %}
+                            <a href="{{ url_for('app.hosts') }}"
+                               class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Hosts</a>
+                            <a href="#"
+                               class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Command
+                                Events</a>
+                        {% else %}
+                            <a href="{{ url_for('app.hosts') }}"
+                               class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Hosts</a>
+                            <a href="#"
+                               class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Command
+                                Events</a>
+                        {% endif %}
                     </div>
                 </div>
             </div>

@@ -1,3 +1,4 @@
+from datetime import datetime
 from enum import Enum
 from typing import Optional
 
@@ -96,6 +97,14 @@ class CommandCreationSchema(BaseModel):
 
 class CommandUpdateSchema(BaseModel):
     command: str
+
+
+class CommandHistorySchema(BaseModel):
+    id: int
+    guid: str
+    result: str
+    exit_code: str
+    completed_at: datetime
 
 
 # Executor

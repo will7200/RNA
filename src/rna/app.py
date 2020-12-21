@@ -2,16 +2,13 @@ import base64
 import os
 
 from flask import Flask, redirect, request, url_for
-from sqlalchemy.exc import IntegrityError
 
 import rna.modules.auth.routes  # noqa
 import rna.modules.remote_management.routes  # noqa
 import rna.modules.users.routes  # noqa
 from rna.extensions import db, login_manager, celery
 from rna.modules import get_registered_blueprints
-from rna.modules.remote_management.host_executor import execute_host_command
-from rna.modules.remote_management.models import Host
-from rna.modules.users.model import User, Role
+from rna.modules.users.model import User
 from rna.modules.users.routes import users_service
 
 

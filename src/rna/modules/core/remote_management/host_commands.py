@@ -2,11 +2,20 @@ from abc import abstractmethod, ABC
 from typing import List
 
 from rna.modules.core.remote_management.schemas import CommandDetailSchema, CommandCreationSchema, \
-    CommandUpdateSchema
+    CommandUpdateSchema, CommandHistorySchema
 
 
 class CommandManagement(ABC):
     """Base Class for command Management"""
+
+    @abstractmethod
+    def get_command_history(self, user_identity, identifier) -> List[CommandHistorySchema]:
+        """
+        Gets a single command given by command_id
+        :param user_identity: where owner owns command
+        :param identifier: for command
+        :returns: command Schema
+        """
 
     @abstractmethod
     def get_command(self, user_identity, identifier) -> CommandDetailSchema:
