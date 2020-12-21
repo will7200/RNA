@@ -3,7 +3,6 @@
 branch = True
 source = src
 omit = *migrations*
-branch = True
 
 [paths]
 source = src
