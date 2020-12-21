@@ -3,7 +3,7 @@ from flask.testing import FlaskClient
 
 from rna.app import create_app
 from rna.extensions import db
-from test.unit.base import TestBaseConfig
+from test.config.testing import TestBaseConfig
 
 
 @pytest.fixture(autouse=True)

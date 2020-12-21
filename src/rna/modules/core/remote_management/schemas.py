@@ -44,6 +44,10 @@ class HostBaseModel(BaseModel):
             if private_key == '':
                 raise ValueError("private_key cannot be blank")
             # TODO check that the private key is good
+        if values.get('encrypt_authentication') is True:
+            user_password: Optional[str] = values.get('user_password')
+            if user_password is None:
+                raise ValueError("user_password must be set if encrypting authentication credentials")
         return values
 
     @validator('port', pre=True, whole=True, check_fields=False, allow_reuse=True)

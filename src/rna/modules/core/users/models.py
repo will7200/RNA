@@ -1,12 +1,12 @@
 from typing import Optional
 
-from marshmallow_sqlalchemy import ModelSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from pydantic import BaseModel, validator
 
 from rna.modules.models import ResourceExists, ResourceNotFound
 
 
-class UserDetailView(ModelSchema):
+class UserDetailView(SQLAlchemyAutoSchema):
     """UserDetailSchema exposes the correct fields when marshalling the request over the api"""
 
     class Meta:

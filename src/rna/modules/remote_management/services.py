@@ -93,16 +93,15 @@ class DBHostManagement(HostManagement):
         if host:
             if password:
                 try:
-                    data = host.decrypt_authentication_information(password)
+                    host.decrypt_authentication_information(password)
                 except ValueError:
                     raise InvalidEncryptionPassword()
-                print(data)
             return host
         raise HostDoesntExist(identifier)
 
     def get_host_list(self, user_identity, options: HostFilterOptions) -> List[Host]:
         base = Host.query.filter(Host.user_id == user_identity)
-        if options.hostname:
+        if options.name:
             base = base.filter(Host.name.like(f"%{options.name}%"))
         if options.hostname:
             base = base.filter(Host.hostname.like(f"%{options.hostname}%"))

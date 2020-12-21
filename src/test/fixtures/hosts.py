@@ -17,6 +17,18 @@ def localhost(admin_user: User):
 
 
 @pytest.fixture
+def localhost_encrypted(admin_user: User):
+    """Creates a host """
+    host = Host(name="localhost", hostname="localhost", port=22,
+                username="root", authentication_method="password",
+                encrypt_authentication=True, user_password='password_encrypt',
+                password="password", user_id=admin_user.id)
+    db.session.add(host)
+    db.session.commit()
+    return host
+
+
+@pytest.fixture
 def localhost_command():
     """Creates a host """
     host = Host(name="localhost", hostname="localhost", port=22,

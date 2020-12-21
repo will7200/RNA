@@ -4,7 +4,7 @@ import pytest
 from flask import url_for
 from werkzeug import Response
 
-from rna.modules.remote_management.models import Host
+from rna.modules.remote_management.models import Host, decrypt_aes_gcm
 
 
 @pytest.mark.usefixtures('authenticated_admin')
@@ -48,6 +48,70 @@ class TestHostAPI(object):
         database.session.refresh(localhost)
         assert localhost.hostname == 'new_localhost'
         assert old_name == localhost.name
+
+    def test_host_creation(self, client, database):
+        resp: Response = client.post(url_for('api.hosts'), data=dict(
+            name='created_hostname', hostname='created_hostname',
+        ))
+        self.assertStatus(resp, 201, "expecting 201")
+        data = json.loads(resp.get_data())
+        assert data['name'] == 'created_hostname'
+        new_host = Host.query.get(data['id'])
+        assert new_host.name == 'created_hostname'
+
+    def test_host_creation_encrypted_missing_password(self, client):
+        resp: Response = client.post(url_for('api.hosts'), data=dict(
+            name='created_hostname', hostname='created_hostname',
+            password='password', authentication_method="password",
+            encrypt_authentication=True
+        ))
+        self.assertStatus(resp, 400, "expecting 400")
+
+    def test_host_creation_encrypted(self, client, database):
+        resp: Response = client.post(url_for('api.hosts'), data=dict(
+            name='created_hostname', hostname='created_hostname',
+            password='password', authentication_method="password",
+            encrypt_authentication=True, user_password='password_encrypt'
+        ))
+        self.assertStatus(resp, 201, "expecting 201")
+        data = json.loads(resp.get_data())
+        assert data['name'] == 'created_hostname'
+        new_host: Host = Host.query.get(data['id'])
+        assert new_host.name == 'created_hostname'
+
+        # check password field to make sure its encrypted
+        assert new_host.password != 'password'
+        assert 'password'.encode('utf8') == decrypt_aes_gcm(new_host.password, 'password_encrypt'.encode('utf-8'))
+
+    def test_another_user_cant_get_another_users_host(self, authenticated_power_user, client, database,
+                                                      admin_user, power_user):
+        resp1: Response = client.post(url_for('api.hosts'), data=dict(
+            name='created_hostname', hostname='created_hostname',
+        ))
+        self.assertStatus(resp1, 201, "expecting 201")
+        data1 = json.loads(resp1.get_data())
+        assert data1['name'] == 'created_hostname'
+        resp2: Response = authenticated_power_user.post(url_for('api.hosts'), data=dict(
+            name='created_hostname', hostname='created_hostname',
+        ))
+        data2 = json.loads(resp2.get_data())
+        assert data2['name'] == 'created_hostname'
+        self.assertStatus(resp2, 201, "expecting 201")
+
+        # test admin user
+        resp: Response = client.get(url_for('api.hosts', host_id=data1['id']))
+        assert resp.status_code == 200, "Expecting a host"
+
+        # admin now try to get power users host
+        resp: Response = client.get(url_for('api.hosts', host_id=data2['id']))
+        assert resp.status_code == 404, "Expecting to not find a host"
+
+        # test power user
+        resp: Response = authenticated_power_user.get(url_for('api.hosts', host_id=data2['id']))
+        assert resp.status_code == 200, "Expecting a host"
+
+        resp: Response = authenticated_power_user.get(url_for('api.hosts', host_id=data1['id']))
+        assert resp.status_code == 404, "Expecting to not find a host"
 
     def assertStatus(self, resp, param, param1):
         assert resp.status_code == param, param1

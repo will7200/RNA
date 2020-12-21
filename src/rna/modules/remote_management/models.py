@@ -61,8 +61,9 @@ def encrypt_aes_gcm(msg, password):
     kdf_salt = os.urandom(16)
     secret_key = scrypt.hash(password, kdf_salt, N=16384, r=8, p=1, buflen=32)
     aes_cipher = AES.new(secret_key, AES.MODE_GCM)
-    ciphertext, authTag = aes_cipher.encrypt_and_digest(msg)
-    return f'{b64encode(kdf_salt).decode()}$${b64encode(ciphertext).decode()}$${b64encode(aes_cipher.nonce).decode()}$${b64encode(authTag).decode()}'
+    ciphertext, auth_tag = aes_cipher.encrypt_and_digest(msg)
+    return f'{b64encode(kdf_salt).decode()}$${b64encode(ciphertext).decode()}' \
+           f'$${b64encode(aes_cipher.nonce).decode()}$${b64encode(auth_tag).decode()}'
 
 
 def decrypt_aes_gcm(encrypted_msg, password):

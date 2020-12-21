@@ -8,6 +8,7 @@ class TestBaseConfig:
     DEBUG = False
     TESTING = True
     BCRYPT_LOG_ROUNDS = 4
+    LOGIN_DISABLED = False
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"

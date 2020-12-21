@@ -2,7 +2,7 @@ import pydantic
 from flask import jsonify, request, render_template, flash, redirect, url_for
 from flask.views import MethodView
 from flask_login import login_required, current_user
-from marshmallow_sqlalchemy import ModelSchema
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 from rna.modules.api import APIView
 from rna.modules.core.remote_management.host_commands import CommandManagement
@@ -16,9 +16,9 @@ from rna.modules.users.model import roles_has_one
 from rna.modules.utils.helpers import is_safe_url
 
 
-class HostDetailSchema(ModelSchema):
+class HostDetailSchema(SQLAlchemyAutoSchema):
     class Meta:
-        fields = ("name", "hostname", "username", "port", "ssh_options", "encrypt_authentication")
+        fields = ("id", "name", "hostname", "username", "port", "ssh_options", "encrypt_authentication")
 
 
 class HostManagementAPI(APIView):
