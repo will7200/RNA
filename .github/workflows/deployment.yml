@@ -141,3 +141,8 @@ jobs:
           task-definition: rna-migrations-definition.json
           image: ${{ steps.push-rna-migrations-image.outputs.image }}
           container-name: RNA-Migrations
+
+      - name: Run Migrations Task
+        run: |
+          revision=$(aws ecs describe-task-definition --task-definition RNA-Migrations:2 | jq .taskDefinition.revision)
+          aws ecs run-task --cluster RNA --task-definition "RNA-Migrations:${revision}"
