@@ -9,7 +9,8 @@ from rna.modules.core.remote_management.host_commands import CommandManagement
 from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.core.remote_management.schemas import HostFilterOptions, HostCreationSchema, \
-    HostUpdateSchema, HostExists, HostDoesntExist, ExecuteDetails, CommandCreationSchema, CommandUpdateSchema
+    HostUpdateSchema, HostExists, HostDoesntExist, ExecuteDetails, CommandCreationSchema, CommandUpdateSchema, \
+    InvalidEncryptionPassword
 from rna.modules.remote_management.forms import HostAddForm, HostEditForm, CommandAddForm, CommandEditForm
 from rna.modules.users.model import roles_has_one
 
@@ -160,6 +161,28 @@ class CommandManagementActions(MethodView):
         self.executor = executor
         self.commands = commands
 
+    def post(self, host_id, command_id, action):
+        if action == 'RUN':
+            command = self.commands.get_command(current_user.id, command_id)
+            form = request.form
+            if 'password' not in form or form['password'] == '':
+                flash("Password is empty", "error")
+                host = self.management.get_host(current_user.id, command.host_id)
+                return render_template('remote_management/forms/run_password.html', host=host, command=command), 400
+            try:
+                host = self.management.get_host(current_user.id, command.host_id, password=form['password'])
+            except InvalidEncryptionPassword:
+                flash("Invalid password", "error")
+                host = self.management.get_host(current_user.id, command.host_id)
+                return render_template('remote_management/forms/run_password.html', host=host, command=command), 400
+            self.executor.execute_command(ExecuteDetails(
+                command_id=command.id,
+                command=command.command,
+                **host.to_dict()  # type: ignore
+            ))
+            return redirect(url_for('app.host', host_id=host.id))
+        return redirect(request.referrer)
+
     def get(self, host_id, command_id, action):
         if action == 'DELETE':
             command = self.commands.delete_command(current_user.id, command_id)
@@ -168,6 +191,8 @@ class CommandManagementActions(MethodView):
         command = self.commands.get_command(current_user.id, command_id)
         if action == 'RUN':
             host = self.management.get_host(current_user.id, command.host_id)
+            if host.encrypt_authentication:
+                return render_template('remote_management/forms/run_password.html', host=host, command=command)
             r = self.executor.execute_command(ExecuteDetails(
                 command_id=command.id,
                 command=command.command,

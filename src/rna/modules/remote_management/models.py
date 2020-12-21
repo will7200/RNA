@@ -1,6 +1,10 @@
+import os
+from base64 import b64encode, b64decode
 from datetime import datetime
 from typing import List
 
+from Crypto.Cipher import AES
+from scrypt import scrypt
 from sqlalchemy import Column, Integer, String, Text, Enum, Boolean, ForeignKey, UniqueConstraint, DateTime
 from sqlalchemy.orm import relationship
 
@@ -36,6 +40,37 @@ class Host(Base, UpdateMixin):
 
     def __repr__(self):
         return f'<Host {self.id}>'
+
+    def encrypt_authentication_information(self, password: str):
+        """encrypt password and/or private key with AES GCM"""
+        if self.private_key:
+            self.private_key = encrypt_aes_gcm(self.private_key.encode('utf8'), password.encode('utf8'))
+
+        if self.password:
+            self.password = encrypt_aes_gcm(self.password.encode('utf8'), password.encode('utf8'))
+
+    def decrypt_authentication_information(self, password):
+        """decrypt decrypted password and/or private key"""
+        if self.password:
+            self.password = decrypt_aes_gcm(self.password, password)
+        if self.private_key:
+            self.private_key = decrypt_aes_gcm(self.private_key, password)
+
+
+def encrypt_aes_gcm(msg, password):
+    kdf_salt = os.urandom(16)
+    secret_key = scrypt.hash(password, kdf_salt, N=16384, r=8, p=1, buflen=32)
+    aes_cipher = AES.new(secret_key, AES.MODE_GCM)
+    ciphertext, authTag = aes_cipher.encrypt_and_digest(msg)
+    return f'{b64encode(kdf_salt).decode()}$${b64encode(ciphertext).decode()}$${b64encode(aes_cipher.nonce).decode()}$${b64encode(authTag).decode()}'
+
+
+def decrypt_aes_gcm(encrypted_msg, password):
+    (kdfSalt, ciphertext, nonce, authTag) = [b64decode(x) for x in encrypted_msg.split('$$')]
+    secret_key = scrypt.hash(password, kdfSalt, N=16384, r=8, p=1, buflen=32)
+    aes_cipher = AES.new(secret_key, AES.MODE_GCM, nonce)
+    plaintext = aes_cipher.decrypt_and_verify(ciphertext, authTag)
+    return plaintext
 
 
 class HostCommand(Base, UpdateMixin):

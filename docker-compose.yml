@@ -21,6 +21,8 @@ services:
       dockerfile: Machine.Dockerfile
     networks:
       - backend
+    ports:
+      - "2022:22"
     restart: always
 
   rabbitmq:

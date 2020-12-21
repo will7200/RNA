@@ -4,7 +4,7 @@ from typing import Optional
 
 from pydantic import BaseModel, root_validator, validator
 
-from rna.modules.models import ResourceExists, ResourceNotFound
+from rna.modules.models import ResourceExists, ResourceNotFound, APIException
 
 
 class HostFilterOptions(BaseModel):
@@ -70,6 +70,7 @@ class HostCreationSchema(HostBaseModel):
     private_key: Optional[str]
     # Password or private key will be encrypted with the users current password.
     encrypt_authentication: Optional[bool]
+    user_password: Optional[str]
 
 
 class HostUpdateSchema(HostBaseModel):
@@ -133,6 +134,11 @@ class HostDoesntExist(ResourceNotFound):
         super().__init__(self, *args, **kwargs)
         self.name = name
         self.message = "Host does not exist"
+
+
+class InvalidEncryptionPassword(APIException):
+    def __init__(self, message="Invalid Password", *args, **kwargs):
+        self.message = message
 
 
 class CommandDoesntExist(ResourceNotFound):

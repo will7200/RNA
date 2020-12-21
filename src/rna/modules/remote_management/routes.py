@@ -39,7 +39,7 @@ base_app.add_url_rule('/form/host/<int:host_id>/edit', view_func=host_edit_form,
 commands_actions = CommandManagementActions.as_view('command_actions', management=hosts_service,
                                                     commands=commands_service, executor=host_executor_service)
 base_app.add_url_rule('/host/<int:host_id>/command/<int:command_id>/<string:action>', view_func=commands_actions,
-                      methods=['GET'])
+                      methods=['GET', 'POST'])
 
 command_add_form = CommandAddView.as_view('command_add', management=commands_service, host_management=hosts_service)
 base_app.add_url_rule('/form/host/<int:host_id>/command/add', view_func=command_add_form, methods=['GET', 'POST'])

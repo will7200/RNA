@@ -1,6 +1,6 @@
 # Define the User profile form
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, SelectField, BooleanField, SubmitField, validators
+from wtforms import StringField, IntegerField, SelectField, BooleanField, SubmitField, validators, TextAreaField
 
 from rna.modules.core.remote_management.schemas import AuthenticationMethod
 from rna.modules.core.utils.form_validators import RequiredIf
@@ -17,7 +17,7 @@ class HostAddForm(FlaskForm):
                                         choices=[('', ''), ('password', "Password"), ('key_pair', "Key Pair")],
                                         default='')
     encrypt_authentication = BooleanField('Encrypt Authentication Method')
-    private_key = StringField('Private Key', validators=[RequiredIf(authentication_method='key_pair')])
+    private_key = TextAreaField('Private Key', validators=[RequiredIf(authentication_method='key_pair')])
     user_password = StringField('Current Password', default=None, validators=[
         RequiredIf(encrypt_authentication=True, exclude=lambda form: form['authentication_method'].data == '')])
     submit = SubmitField('Create')
@@ -42,8 +42,8 @@ class HostEditForm(FlaskForm):
                                         choices=[('', ''), ('password', "Password"), ('key_pair', "Key Pair")],
                                         coerce=coerce_to_string(AuthenticationMethod))
     encrypt_authentication = BooleanField('Encrypt Authentication Method')
-    private_key = StringField('Private Key', validators=[RequiredIf(authentication_method='key_pair')])
-    user_password = StringField('Current Password', default=None, validators=[
+    private_key = TextAreaField('Private Key', validators=[RequiredIf(authentication_method='key_pair')])
+    user_password = StringField('Encryption Password', default=None, validators=[
         RequiredIf(encrypt_authentication=True, exclude=lambda form: form['authentication_method'].data == '')])
     submit = SubmitField('Update')
 

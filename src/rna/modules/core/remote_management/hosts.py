@@ -9,9 +9,10 @@ class HostManagement(ABC):
     """Base Class for Host Management"""
 
     @abstractmethod
-    def get_host(self, user_identity, identifier) -> HostSchema:
+    def get_host(self, user_identity, identifier, password=None) -> HostSchema:
         """
         Gets a single host given by host_id
+        :param password: to decrypt password or private key
         :param user_identity: where owner owns host
         :param identifier: for host
         :returns: Host Schema

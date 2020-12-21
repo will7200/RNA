@@ -9,7 +9,7 @@ from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.core.remote_management.schemas import ExecuteDetails, HostUpdateSchema, HostDoesntExist, \
     HostCreationSchema, HostExists, HostFilterOptions, CommandUpdateSchema, CommandCreationSchema, CommandDetailSchema, \
-    CommandDoesntExist, CommandHistorySchema
+    CommandDoesntExist, CommandHistorySchema, InvalidEncryptionPassword
 from rna.modules.remote_management.models import Host, HostCommand, HostCommandEvent
 from rna.modules.remote_management.tasks import execute_host_command
 
@@ -79,15 +79,25 @@ class DBHostManagement(HostManagement):
         self.executor.execute_command(
             ExecuteDetails(command_id=new_host.commands[0].id, command=new_host.commands[0].command,
                            **new_host.to_dict()))
+        if details.encrypt_authentication:
+            new_host.encrypt_authentication_information(details.user_password)
+            db.session.add(new_host)
+            db.session.commit()
         return new_host
 
-    def get_host(self, user_identity, identifier) -> Host:
+    def get_host(self, user_identity, identifier, password=None) -> Host:
         if type(identifier) is int:
-            _found = Host.query.filter(Host.user_id == user_identity, Host.id == identifier).one_or_none()
+            host = Host.query.filter(Host.user_id == user_identity, Host.id == identifier).one_or_none()
         else:
-            _found = Host.query.filter(Host.user_id == user_identity, Host.name == identifier).one_or_none()
-        if _found:
-            return _found
+            host = Host.query.filter(Host.user_id == user_identity, Host.name == identifier).one_or_none()
+        if host:
+            if password:
+                try:
+                    data = host.decrypt_authentication_information(password)
+                except ValueError:
+                    raise InvalidEncryptionPassword()
+                print(data)
+            return host
         raise HostDoesntExist(identifier)
 
     def get_host_list(self, user_identity, options: HostFilterOptions) -> List[Host]:
