@@ -108,6 +108,7 @@ jobs:
         with:
           task-definition: rna-web-definition.json
           image: ${{ steps.push-rna-web-image.outputs.image }}
+          container-name: rna-web
 
       - name: Deploy RNA-Web Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -123,6 +124,7 @@ jobs:
         with:
           task-definition: rna-worker-definition.json
           image: ${{ steps.push-rna-worker-image.outputs.image }}
+          container-name: rna-worker
 
       - name: Deploy RNA-Worker Amazon ECS task definition
         uses: aws-actions/amazon-ecs-deploy-task-definition@v1
@@ -138,8 +140,9 @@ jobs:
         with:
           task-definition: rna-migrations-definition.json
           image: ${{ steps.push-rna-migrations-image.outputs.image }}
+          container-name: RNA-Migrations
 
-      - name: Deploy RNA-Migrations Amazon ECS task definition
-        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-        with:
-          task-definition: ${{ steps.task-def-rna-migrations.outputs.task-definition }}
+#      - name: Deploy RNA-Migrations Amazon ECS task definition
+#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+#        with:
+#          task-definition: ${{ steps.task-def-rna-migrations.outputs.task-definition }}
