@@ -41,7 +41,9 @@ class HostManagementAPI(APIView):
             return jsonify(HostDetailSchema().dump(
                 self.management.create_host(current_user.id, HostCreationSchema(**data)))), 201
         except pydantic.error_wrappers.ValidationError as e:
-            return jsonify({"message": "unable to add host", "errors": e.errors()}), 400
+            return jsonify({
+                "message": "unable to add host",
+                "errors" : e.errors()}), 400  # noqa: E203
 
     def delete(self, host_id):
         # delete a single host
@@ -119,8 +121,8 @@ class HostAddView(MethodView):
             flash(e.errors(), "error")
             return self._render_form(form=form), 400
         try:
-            l = self.management.create_host(current_user.id, data)
-            return render_template("remote_management/forms/host_added.html", title='Host Added', host=l), 201
+            create_host = self.management.create_host(current_user.id, data)
+            return render_template("remote_management/forms/host_added.html", title='Host Added', host=create_host), 201
         except HostExists as e:
             flash(e.to_dict(), "error")
             return self._render_form(form=form), 400
@@ -198,9 +200,10 @@ class CommandManagementActions(MethodView):
         if action == 'RUN':
             host = self.management.get_host(current_user.id, command.host_id)
             if host.encrypt_authentication:
-                return render_template(f'remote_management/forms/run_password.html', host=host, command=command,
-                                       form={'redirect_url': request.referrer})
-            r = self.executor.execute_command(ExecuteDetails(
+                return render_template('remote_management/forms/run_password.html', host=host, command=command,
+                                       form={
+                                           'redirect_url': request.referrer})
+            self.executor.execute_command(ExecuteDetails(
                 command_id=command.id,
                 command=command.command,
                 **host.to_dict()  # type: ignore

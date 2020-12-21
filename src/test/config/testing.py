@@ -4,6 +4,7 @@ import os
 class TestBaseConfig:
     """Base configuration."""
     SECRET_KEY = os.getenv('SECRET_KEY', 'something')
+    SERVER_NAME = "localhost.localdomain:5000"
     DEBUG = False
     TESTING = True
     BCRYPT_LOG_ROUNDS = 4

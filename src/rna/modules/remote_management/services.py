@@ -24,17 +24,17 @@ class CeleryHostExecutor(HostExecutor):
         try:
             result = res.get(timeout=1)
             data = {"task_id": identifier,
-                    "data"   : {"result": result, **res._get_task_meta()}}
+                    "data"   : {"result": result, **res._get_task_meta()}}  # noqa: E203
         except TimeoutError:
             data = {"task_id": identifier,
-                    "data"   : {"running": True, **res._get_task_meta()}}
+                    "data"   : {"running": True, **res._get_task_meta()}}  # noqa: E203
         except Exception as e:
             t = res._get_task_meta()
             if isinstance(t['result'], BaseException):
                 res = t.pop('result')
                 t['result'] = str(res)
             data = {"task_id": identifier,
-                    "data"   : {
+                    "data"   : {  # noqa: E203
                         "error": e.args[0],
                         **t}
                     }
