@@ -18,6 +18,7 @@ services:
     build:
       context: ./
       dockerfile: src/Migrations.Dockerfile
+    image: "rna-migrations:${TAG:-latest}"
     networks:
       - backend
     depends_on:
@@ -33,6 +34,7 @@ services:
     build:
       context: ./src
       dockerfile: Machine.Dockerfile
+    image: "rna-client:${TAG:-latest}"
     networks:
       - backend
     ports:
@@ -53,6 +55,7 @@ services:
     build:
       context: ./src
       dockerfile: Dockerfile
+    image: "rna-web:${TAG:-latest}"
     ports:
       - "5057:5057"
     depends_on:
@@ -87,6 +90,7 @@ services:
     build:
       context: ./src
       dockerfile: Celery.Dockerfile
+    image: "rna-worker:${TAG:-latest}"
     networks:
       - backend
     depends_on:

@@ -20,4 +20,8 @@ Test application – Simple 3 Tier, Network Automation.
 
 ## CI Tools
 
-1. mypy with sqlalchemy-stubs to check database creation
+1. Lint with flake8
+2. Static Analysis with mypy
+   sqlalchemy-stubs to check database creation
+3. Testing with pytest
+4. Coverage with Codecov generated from pytest-cov
