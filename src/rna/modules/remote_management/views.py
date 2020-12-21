@@ -2,7 +2,6 @@ import pydantic
 from flask import jsonify, request, render_template, flash, redirect, url_for
 from flask.views import MethodView
 from flask_login import login_required, current_user
-from marshmallow import fields
 from marshmallow_sqlalchemy import ModelSchema
 
 from rna.modules.api import APIView
@@ -10,21 +9,14 @@ from rna.modules.core.remote_management.host_commands import CommandManagement
 from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.core.remote_management.schemas import HostFilterOptions, HostCreationSchema, \
-    HostUpdateSchema, HostExists, HostDoesntExist, ExecuteDetails
-from rna.modules.remote_management.forms import HostAddForm, HostEditForm
+    HostUpdateSchema, HostExists, HostDoesntExist, ExecuteDetails, CommandCreationSchema, CommandUpdateSchema
+from rna.modules.remote_management.forms import HostAddForm, HostEditForm, CommandAddForm, CommandEditForm
 from rna.modules.users.model import roles_has_one
 
 
 class HostDetailSchema(ModelSchema):
     class Meta:
-        fields = ("name", "hostname", "username", "port", "ssh_options")
-
-    password_required_to_run = fields.Method("requires_password")
-
-    def requires_password(self, obj):
-        if 'encrypt_authentication' in obj and obj.encrypt_authentication:
-            return True
-        return False
+        fields = ("name", "hostname", "username", "port", "ssh_options", "encrypt_authentication")
 
 
 class HostManagementAPI(APIView):
@@ -178,4 +170,66 @@ class CommandManagementActions(MethodView):
                 **host.to_dict()  # type: ignore
             ))
             return redirect(request.referrer)
+        if action == 'DELETE':
+            command = self.commands.delete_command(current_user.id, command_id)
+            return redirect(request.referrer)
         raise Exception(f"Unknown Action {action}")
+
+
+class CommandAddView(MethodView):
+    decorators = [login_required]
+
+    def __init__(self, management: CommandManagement, host_management: HostManagement):
+        self.management = management
+        self.host_management = host_management
+
+    def _render_form(self, **kwargs):
+        return render_template("remote_management/forms/command_add.html", title="Add Command", **kwargs)
+
+    def get(self, host_id):
+        form = CommandAddForm(request.form)
+        return self._render_form(form=form, host=self.host_management.get_host(current_user.id, host_id))
+
+    def post(self, host_id):
+        host = self.host_management.get_host(current_user.id, host_id)
+        form = CommandAddForm(request.form)
+        if not form.validate():
+            return self._render_form(form=form, host=host), 400
+        try:
+            data = CommandCreationSchema(**request.form, host_id=host.id)
+        except pydantic.error_wrappers.ValidationError as e:
+            flash(e.errors(), "error")
+            return self._render_form(form=form, host=host), 400
+        self.management.create_command(current_user.id, data)
+        return redirect(url_for('app.host', host_id=host_id))
+
+
+class CommandEditView(MethodView):
+    decorators = [login_required]
+
+    def __init__(self, management: CommandManagement, host_management: HostManagement):
+        self.management = management
+        self.host_management = host_management
+
+    def _render_form(self, **kwargs):
+        return render_template("remote_management/forms/command_edit.html", title="Edit Command", **kwargs)
+
+    def get(self, host_id, command_id):
+        command = self.management.get_command(current_user.id, command_id)
+        form = CommandEditForm(request.form, obj=command)
+        return self._render_form(form=form, command=command,
+                                 host=self.host_management.get_host(current_user.id, host_id))
+
+    def post(self, host_id, command_id):
+        host = self.host_management.get_host(current_user.id, host_id)
+        command = self.management.get_command(current_user.id, command_id)
+        form = CommandEditForm(request.form)
+        if not form.validate():
+            return self._render_form(form=form, command=command, host=host), 400
+        try:
+            data = CommandUpdateSchema(**request.form)
+        except pydantic.error_wrappers.ValidationError as e:
+            flash(e.errors(), "error")
+            return self._render_form(form=form, command=command, host=host), 400
+        self.management.update_command(current_user.id, command.id, data)
+        return redirect(url_for('app.host', host_id=host_id))

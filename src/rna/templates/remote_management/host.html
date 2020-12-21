@@ -7,7 +7,8 @@
                         <h3 class="text-lg leading-6 font-medium text-gray-900">
                             <span class="font-bold">{{ host.name }}</span> Host Information
                             <span class="float-right px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <a href="{{ url_for('app.host_actions', host_id=host.id, action='edit') }}" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
+                                <a href="{{ url_for('app.host_actions', host_id=host.id, action='edit') }}"
+                                   class="text-indigo-600 hover:text-indigo-900">Edit</a> |
                                 <a href="{{ url_for('app.host_actions', host_id=host.id, action='delete') }}"
                                    class="text-indigo-600 hover:text-indigo-900">Delete</a>
                             </span>
@@ -84,14 +85,32 @@
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <a href="{{ url_for("app.command_actions", host_id=host.id, command_id=command.id, action="RUN") }}"
                                    class="text-indigo-600 hover:text-indigo-900">Run</a> |
-                                <a href="#" class="text-indigo-600 hover:text-indigo-900">Edit</a> |
+                                <a href="{{ url_for("app.command_edit", host_id=host.id, command_id=command.id) }}"
+                                   class="text-indigo-600 hover:text-indigo-900">Edit</a> |
+                                <a href="{{ url_for("app.command_actions", host_id=host.id, command_id=command.id, action="DELETE") }}"
+                                   onclick="return confirm_delete()"
+                                   class="text-indigo-600 hover:text-indigo-900">Delete</a> |
                                 <a href="#" class="text-indigo-600 hover:text-indigo-900">View All Events</a>
                             </td>
                         </tr>
                     {% endfor %}
                     </tbody>
                 </table>
+                <div class="px-4 py-5 sm:px-6 float-right">
+                    <a href="{{ url_for("app.command_add", host_id=host.id) }}">
+                        <button class="group relative flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            Add Command
+                        </button>
+                    </a>
+                </div>
             </div>
         </div>
     </main>
 {% endblock content %}
+{% block js %}
+    <script type="text/javascript">
+        function confirm_delete() {
+            return confirm('are you sure?');
+        }
+    </script>
+{% endblock %}

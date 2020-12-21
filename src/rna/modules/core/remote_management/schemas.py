@@ -84,17 +84,18 @@ class HostUpdateSchema(HostBaseModel):
 
 
 class CommandDetailSchema(BaseModel):
-    id = int
-    command = str
-    host_id = int
+    id: int
+    command: str
+    host_id: int
 
 
 class CommandCreationSchema(BaseModel):
-    pass
+    command: str
+    host_id: int
 
 
 class CommandUpdateSchema(BaseModel):
-    pass
+    command: str
 
 
 # Executor
@@ -123,3 +124,11 @@ class HostDoesntExist(ResourceNotFound):
         super().__init__(self, *args, **kwargs)
         self.name = name
         self.message = "Host does not exist"
+
+
+class CommandDoesntExist(ResourceNotFound):
+    def __init__(self, command_id=None, host_id=None, *args, **kwargs):
+        super().__init__(self, *args, **kwargs)
+        self.command_id = command_id
+        self.host_id = host_id
+        self.message = "Command does not exist for Host"

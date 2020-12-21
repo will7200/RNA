@@ -8,7 +8,8 @@ from rna.modules.core.remote_management.host_commands import CommandManagement
 from rna.modules.core.remote_management.host_executor import HostExecutor
 from rna.modules.core.remote_management.hosts import HostManagement
 from rna.modules.core.remote_management.schemas import ExecuteDetails, HostUpdateSchema, HostDoesntExist, \
-    HostCreationSchema, HostExists, HostFilterOptions, CommandUpdateSchema, CommandCreationSchema, CommandDetailSchema
+    HostCreationSchema, HostExists, HostFilterOptions, CommandUpdateSchema, CommandCreationSchema, CommandDetailSchema, \
+    CommandDoesntExist
 from rna.modules.remote_management.models import Host, HostCommand
 from rna.modules.remote_management.tasks import execute_host_command
 
@@ -104,19 +105,31 @@ class DBHostCommandManagement(CommandManagement):
                                                      HostCommand.id == identifier).one_or_none()
         if _found:
             return _found
-        raise HostDoesntExist(identifier)
+        raise CommandDoesntExist(identifier)
 
     def get_command_list(self, user_identity, identifier) -> List[CommandDetailSchema]:
-        _found = HostCommand.query.join(Host).filter(Host.user_id == user_identity, Host.id == identifier)
-        if _found:
-            return _found
-        raise HostDoesntExist(identifier)
+        _found = HostCommand.query.join(Host).filter(Host.user_id == user_identity, Host.id == identifier).all()
+        return _found
 
     def create_command(self, user_identity, details: CommandCreationSchema) -> CommandDetailSchema:
-        raise NotImplementedError()
+        command = HostCommand(command=details.command, host_id=details.host_id)
+        db.session.add(command)
+        db.session.commit()
+        return command
 
     def delete_command(self, user_identity, identifier):
-        raise NotImplementedError()
+        command = HostCommand.query.join(Host).filter(Host.user_id == user_identity,
+                                                      HostCommand.id == identifier).one_or_none()
+        if command is None:
+            raise CommandDoesntExist(identifier)
+        db.session.delete(command)
+        db.session.commit()
+        return True
 
     def update_command(self, user_identity, identifier, details: CommandUpdateSchema):
-        raise NotImplementedError()
+        command = HostCommand.query.join(Host).filter(Host.user_id == user_identity,
+                                                      HostCommand.id == identifier).one_or_none()
+        command.update(details.dict())
+        db.session.add(command)
+        db.session.commit()
+        return True
