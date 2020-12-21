@@ -13,6 +13,7 @@ from rna.modules.core.remote_management.schemas import HostFilterOptions, HostCr
     InvalidEncryptionPassword
 from rna.modules.remote_management.forms import HostAddForm, HostEditForm, CommandAddForm, CommandEditForm
 from rna.modules.users.model import roles_has_one
+from rna.modules.utils.helpers import is_safe_url
 
 
 class HostDetailSchema(ModelSchema):
@@ -168,18 +169,23 @@ class CommandManagementActions(MethodView):
             if 'password' not in form or form['password'] == '':
                 flash("Password is empty", "error")
                 host = self.management.get_host(current_user.id, command.host_id)
-                return render_template('remote_management/forms/run_password.html', host=host, command=command), 400
+                return render_template('remote_management/forms/run_password.html', host=host, command=command,
+                                       form=request.form), 400
             try:
                 host = self.management.get_host(current_user.id, command.host_id, password=form['password'])
             except InvalidEncryptionPassword:
                 flash("Invalid password", "error")
                 host = self.management.get_host(current_user.id, command.host_id)
-                return render_template('remote_management/forms/run_password.html', host=host, command=command), 400
+                return render_template('remote_management/forms/run_password.html', host=host, command=command,
+                                       form=request.form), 400
             self.executor.execute_command(ExecuteDetails(
                 command_id=command.id,
                 command=command.command,
                 **host.to_dict()  # type: ignore
             ))
+            redirect_url = form.get('redirect_url', None)
+            if redirect_url and is_safe_url(redirect_url):
+                return redirect(redirect_url)
             return redirect(url_for('app.host', host_id=host.id))
         return redirect(request.referrer)
 
@@ -192,7 +198,8 @@ class CommandManagementActions(MethodView):
         if action == 'RUN':
             host = self.management.get_host(current_user.id, command.host_id)
             if host.encrypt_authentication:
-                return render_template('remote_management/forms/run_password.html', host=host, command=command)
+                return render_template(f'remote_management/forms/run_password.html', host=host, command=command,
+                                       form={'redirect_url': request.referrer})
             r = self.executor.execute_command(ExecuteDetails(
                 command_id=command.id,
                 command=command.command,
