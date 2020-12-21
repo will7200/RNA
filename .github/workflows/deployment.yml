@@ -141,8 +141,3 @@ jobs:
           task-definition: rna-migrations-definition.json
           image: ${{ steps.push-rna-migrations-image.outputs.image }}
           container-name: RNA-Migrations
-
-#      - name: Deploy RNA-Migrations Amazon ECS task definition
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#        with:
-#          task-definition: ${{ steps.task-def-rna-migrations.outputs.task-definition }}
