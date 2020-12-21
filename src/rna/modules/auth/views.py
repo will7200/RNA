@@ -1,3 +1,5 @@
+from urllib.parse import urlparse, parse_qs
+
 import pydantic
 from flask import render_template, flash, abort, redirect, request, url_for
 from flask.views import MethodView
@@ -47,7 +49,9 @@ class Login(MethodView):
 
         if authenticator.authenticate(user, data.password):
             logger.info('%s logged in successfully', user.username)
-            next_link = request.args.get('next')
+            next_link = parse_qs(urlparse(request.referrer).query).get('next', None)
+            if next_link:
+                next_link = next_link[0]
             if not is_safe_url(next_link):
                 return abort(400)
             if login_user(user, remember=data.remember_me):
