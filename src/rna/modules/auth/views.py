@@ -49,9 +49,11 @@ class Login(MethodView):
 
         if authenticator.authenticate(user, data.password):
             logger.info('%s logged in successfully', user.username)
-            next_link = parse_qs(urlparse(request.referrer).query).get('next', None)
-            if next_link:
-                next_link = next_link[0]
+            next_link = request.args.get('next')
+            if next_link is None:
+                next_link = parse_qs(urlparse(request.referrer).query).get('next', None)
+                if next_link:
+                    next_link = next_link[0]
             if not is_safe_url(next_link):
                 return abort(400)
             if login_user(user, remember=data.remember_me):
