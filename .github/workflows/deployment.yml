@@ -16,6 +16,7 @@ on:
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: Deploy
     runs-on: ubuntu-latest
 
@@ -40,7 +41,6 @@ jobs:
           TAG: ${{ github.sha }}
         run: |
           docker-compose build
-          
 
       - name: Push RNA Web Image to Amazon ECR
         id: push-rna-web-image
@@ -96,18 +96,50 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$TAG
           echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$TAG"
 
-#      - name: Fill in the new image ID in the Amazon ECS task definition
-#        id: task-def
-#        uses: aws-actions/amazon-ecs-render-task-definition@v1
-#        with:
-#          task-definition: task-definition.json
-#          container-name: sample-app
-#          image: ${{ steps.build-image.outputs.image }}
-#
-#      - name: Deploy Amazon ECS task definition
-#        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
-#        with:
-#          task-definition: ${{ steps.task-def.outputs.task-definition }}
-#          service: sample-app-service
-#          cluster: default
-#          wait-for-service-stability: true
+      - name: Download tasks definition
+        run: |
+          aws ecs describe-task-definition --task-definition RNA-Web --query taskDefinition > rna-web-definition.json
+          aws ecs describe-task-definition --task-definition RNA-WOrker --query taskDefinition > rna-worker-definition.json
+          aws ecs describe-task-definition --task-definition RNA-Migrations --query taskDefinition > rna-migrations-definition.json
+
+      - name: Fill in RNA-Web Worker Definition
+        id: task-def-rna-web
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: rna-web-definition.json
+          image: ${{ steps.push-rna-web-image.outputs.image }}
+
+      - name: Deploy RNA-Web Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-rna-web.outputs.task-definition }}
+          service: RNA-WEB
+          cluster: RNA
+          wait-for-service-stability: true
+
+      - name: Fill in RNA-Worker Worker Definition
+        id: task-def-rna-worker
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: rna-worker-definition.json
+          image: ${{ steps.push-rna-worker-image.outputs.image }}
+
+      - name: Deploy RNA-Worker Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-rna-worker.outputs.task-definition }}
+          service: RNA-Worker
+          cluster: RNA
+          wait-for-service-stability: true
+
+      - name: Fill in RNA-Migrations Definition
+        id: task-def-rna-migrations
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
+        with:
+          task-definition: rna-migrations-definition.json
+          image: ${{ steps.push-rna-migrations-image.outputs.image }}
+
+      - name: Deploy RNA-Migrations Amazon ECS task definition
+        uses: aws-actions/amazon-ecs-deploy-task-definition@v1
+        with:
+          task-definition: ${{ steps.task-def-rna-migrations.outputs.task-definition }}
