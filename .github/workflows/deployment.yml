@@ -1,6 +1,12 @@
 name: Deploy to Amazon ECS
 
 on:
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason to run workflow'
+        required: true
+        default: 'I want it'
   workflow_run:
     workflows: [ "Test" ]
     branches: [ main ]
