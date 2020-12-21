@@ -11,6 +11,10 @@ tasks:
   scan-mypy:
     cmds:
       - mypy src/app
+  create-database-migrations:
+    dir: ./src
+    cmds:
+      - python manage.py db migrate
   local-flask:
     dotenv: [ '.env' ]
     cmds:
