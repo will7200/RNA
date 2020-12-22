@@ -18,6 +18,13 @@ Test application – Simple 3 Tier, Network Automation.
         + Route detail page
     + Deployment for CI/CD (Github, Jenkins, ECS)
 
+## Official Deployment:
+
+[RNALoadBalancer-1745776977.us-west-2.elb.amazonaws.com](RNALoadBalancer-1745776977.us-west-2.elb.amazonaws.com)
+
+Architecture
+![Architecture](rna_aws_architecture.png)
+
 ## CI/CD
 
 All CI/CD is done using GITHUB Actions. Take a look at the Actions tab to view more information and the output of the
@@ -66,8 +73,8 @@ Database Migration are created using flask migrate which uses Alembic under the 
 
 ### Local Development
 
-Task is used as an alternative to use make. Read more about it [here](https://taskfile.dev/#/).
-Look at [Taskfile](Taskfile.yml) for some
+Task is used as an alternative to use make. Read more about it [here](https://taskfile.dev/#/). Look
+at [Taskfile](Taskfile.yml) for some
 
 A docker-compose file is provided to get a running version on a local machine.
 
