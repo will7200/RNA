@@ -20,7 +20,7 @@ Test application – Simple 3 Tier, Network Automation.
 
 ## Official Deployment:
 
-[RNALoadBalancer-1745776977.us-west-2.elb.amazonaws.com](RNALoadBalancer-1745776977.us-west-2.elb.amazonaws.com)
+[RNALoadBalancer-1745776977.us-west-2.elb.amazonaws.com](http://RNALoadBalancer-1745776977.us-west-2.elb.amazonaws.com)
 
 Architecture
 ![Architecture](rna_aws_architecture.png)
